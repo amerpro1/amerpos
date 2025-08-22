@@ -3,131 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المطعم - AmerPOS</title>
+    <title>دليل رفع تطبيق Flutter إلى GitHub</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary-color: #4b6cb7;
+            --secondary-color: #182848;
+            --accent-color: #ff6b6b;
+            --light-color: #f5f7fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #333;
-            text-align: center;
+            color: var(--dark-color);
+            padding: 20px;
             direction: rtl;
         }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
+        
         header {
-            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
+        
         h1 {
-            margin: 0;
             font-size: 2.5rem;
+            margin-bottom: 1rem;
         }
+        
         .description {
             font-size: 1.2rem;
-            margin: 1rem 0;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
         }
-        .app-link {
-            display: inline-block;
-            background-color: #4b6cb7;
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            margin: 20px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .content {
+            padding: 2rem;
         }
-        .app-link:hover {
-            background-color: #182848;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        .features {
+        
+        .steps {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
             gap: 20px;
             margin: 2rem 0;
         }
-        .feature {
-            background: white;
+        
+        .step {
+            flex: 1 1 300px;
+            background: var(--light-color);
             border-radius: 10px;
-            padding: 20px;
-            width: 250px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease;
         }
-        .feature:hover {
+        
+        .step:hover {
             transform: translateY(-5px);
         }
-        .feature h3 {
-            color: #4b6cb7;
-            margin-top: 0;
-        }
-        footer {
-            margin-top: 3rem;
-            padding: 1rem;
-            background-color: #182848;
+        
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: var(--primary-color);
             color: white;
-            border-radius: 10px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            margin-bottom: 1rem;
+            font-weight: bold;
         }
+        
+        .step h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .important-note {
+            background: #fff9e6;
+            border-right: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+        
+        .terminal {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1.5rem 0;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .terminal .command {
+            color: #50fa7b;
+        }
+        
+        .terminal .output {
+            color: #f1fa8c;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--light-color);
+            color: var(--dark-color);
+        }
+        
         @media (max-width: 768px) {
-            .features {
-                flex-direction: column;
-                align-items: center;
+            .step {
+                flex: 1 1 100%;
             }
-            .feature {
-                width: 80%;
+            
+            h1 {
+                font-size: 2rem;
             }
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            border: 1px dashed var(--primary-color);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 1s ease;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>نظام إدارة المطعم AmerPOS</h1>
-            <p class="description">نظام متكامل لإدارة المطعم والطلبات والمخزون</p>
+            <h1>دليل رفع تطبيق Flutter إلى GitHub</h1>
+            <p class="description">خطوة بخطوة لرفع ملفات تطبيق Flutter من مجلد build/web إلى مستودع GitHub</p>
         </header>
-
-        <div>
-            <h2>تطبيق إدارة المطعم الخاص بك جاهز</h2>
-            <p>انقر على الرابط أدناه للوصول إلى نظام إدارة المطعم</p>
-            <a href="https://amerpro1.github.io/amerpos/" class="app-link">الدخول إلى نظام AmerPOS</a>
+        
+        <div class="content">
+            <div class="important-note">
+                <h3>ملاحظة هامة:</h3>
+                <p>قبل البدء، تأكد من:</p>
+                <ul>
+                    <li>وجود Git مثبت على جهازك</li>
+                    <li>امتلاكك حساب على GitHub</li>
+                    <li>إنشاء مستودع جديد على GitHub</li>
+                    <li>بناء تطبيق Flutter باستخدام <code>flutter build web --release</code></li>
+                </ul>
+            </div>
+            
+            <h2>الخطوات التفصيلية</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h3>الانتقال إلى مجلد البناء</h3>
+                    <p>افتح terminal وانتقل إلى مجلد build/web الخاص بمشروع Flutter</p>
+                    <div class="code">cd build/web</div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h3>تهيئة Git</h3>
+                    <p>قم بتهيئة مستودع Git جديد في المجلد</p>
+                    <div class="code">git init</div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h3>إضافة الملفات</h3>
+                    <p>أضف جميع الملفات إلى منطقة الانتظار (staging area)</p>
+                    <div class="code">git add .</div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h3>إنشاء commit</h3>
+                    <p>أنشئ commit مع رسالة توضيحية</p>
+                    <div class="code">git commit -m "نشر تطبيق Flutter على الويب"</div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <h3>ربط المستودع البعيد</h3>
+                    <p>اربط المستودع المحلي بمستودع GitHub البعيد</p>
+                    <div class="code">git remote add origin https://github.com/username/repository-name.git</div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <h3>رفع الملفات</h3>
+                    <p>ارفع الملفات إلى الفرع الرئيسي في GitHub</p>
+                    <div class="code">git push -u origin main</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h3>محاكاة عملية الرفع</h3>
+                <p>انقر على الزر أدناه لمحاكاة عملية رفع الملفات إلى GitHub:</p>
+                
+                <div class="progress-bar">
+                    <div class="progress" id="upload-progress"></div>
+                </div>
+                
+                <button class="btn" id="start-upload">بدء عملية الرفع</button>
+                
+                <div class="terminal" id="terminal-output">
+                    <div>$ git init</div>
+                    <div>$ git add .</div>
+                    <div>$ git commit -m "نشر تطبيق Flutter على الويب"</div>
+                    <div>$ git remote add origin https://github.com/username/repository-name.git</div>
+                    <div>$ git push -u origin main</div>
+                </div>
+            </div>
+            
+            <div class="important-note">
+                <h3>تفعيل GitHub Pages</h3>
+                <p>بعد رفع الملفات، قم بتفعيل GitHub Pages من إعدادات المستودع:</p>
+                <ol>
+                    <li>اذهب إلى مستودعك على GitHub</li>
+                    <li>انتقل إلى الإعدادات (Settings)</li>
+                    <li>ابحث عن قسم Pages في القائمة الجانبية</li>
+                    <li>اختر الفرع main كمصدر</li>
+                    <li>احفظ التغييرات</li>
+                    <li>انتظر بضع دقائق حتى يتم نشر التطبيق</li>
+                </ol>
+            </div>
+            
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="#" class="btn btn-success">تنزيل دليل مفصل PDF</a>
+                <a href="#" class="btn">استعراض نماذج مشاريع</a>
+            </div>
         </div>
-
-        <div class="features">
-            <div class="feature">
-                <h3>إدارة الطلبات</h3>
-                <p>تتبع وإدارة الطلبات بسهولة وبكفاءة عالية</p>
-            </div>
-            <div class="feature">
-                <h3>إدارة المخزون</h3>
-                <p>مراقبة المخزون وتلقيم التقارير التلقائية</p>
-            </div>
-            <div class="feature">
-                <h3>تقارير المبيعات</h3>
-                <p>احصل على تقارير مفصلة عن المبيعات والأرباح</p>
-            </div>
-            <div class="feature">
-                <h3>دعم متعدد اللغات</h3>
-                <p>يدعم النظام اللغتين العربية والإنجليزية</p>
-            </div>
-        </div>
-
+        
         <footer>
-            <p>© 2023 AmerPOS - نظام إدارة المطعم. جميع الحقوق محفوظة.</p>
-            <p>للدعم الفني: support@amerpos.com</p>
+            <p>© 2023 دليل تطوير Flutter - جميع الحقوق محفوظة</p>
+            <p>للدعم الفني: support@example.com</p>
         </footer>
     </div>
+
+    <script>
+        document.getElementById('start-upload').addEventListener('click', function() {
+            const progressBar = document.getElementById('upload-progress');
+            const terminalOutput = document.getElementById('terminal-output');
+            const startButton = document.getElementById('start-upload');
+            
+            // تعطيل الزر أثناء المحاكاة
+            startButton.disabled = true;
+            startButton.textContent = 'جاري رفع الملفات...';
+            
+            // محاكاة تقدم عملية الرفع
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // إضافة نتيجة نهائية للمحاكاة
+                    terminalOutput.innerHTML += '<div class="output">تم رفع الملفات بنجاح!</div>';
+                    terminalOutput.innerHTML += '<div class="output">يمكنك الآن زيارة https://username.github.io/repository-name/</div>';
+                    
+                    // إعادة تمكين الزر
+                    startButton.disabled = false;
+                    startButton.textContent = 'بدء عملية الرفع مرة أخرى';
+                }
+            }, 200);
+        });
+    </script>
 </body>
 </html>
