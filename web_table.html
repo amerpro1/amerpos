@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب من الطاولة - AmerPOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #FF6B00 0%, #FFA200 50%, #FF6B00 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6B00;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .table-info {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .table-info h2 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .table-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B00;
+            margin: 10px 0;
+        }
+
+        .table-status {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-available {
+            color: #28a745;
+        }
+
+        .status-occupied {
+            color: #dc3545;
+        }
+
+        .input-group {
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Tajawal', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #FF6B00;
+            outline: none;
+        }
+
+        .btn {
+            background-color: #FF6B00;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            font-family: 'Tajawal', sans-serif;
+            margin: 15px 0;
+        }
+
+        .btn:hover {
+            background-color: #e65d00;
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #dc3545;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FF6B00;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .instructions {
+            background-color: #e8f4ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+        }
+
+        .instructions h3 {
+            color: #0066cc;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-right: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .table-number {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">AmerPOS</div>
+    <h1>مرحباً في مطعمنا</h1>
+
+    <div class="table-info">
+        <h2>الطاولة:</h2>
+        <div class="table-number" id="table-number">--</div>
+        <div class="table-status" id="table-status"></div>
+    </div>
+
+    <div class="input-group">
+        <label for="manual-table-input">أو أدخل رقم الطاولة يدوياً:</label>
+        <input type="number" id="manual-table-input" placeholder="أدخل رقم الطاولة">
+    </div>
+
+    <div class="error" id="error-message"></div>
+
+    <button class="btn" id="start-order-btn">بدء الطلب</button>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>جاري التوجيه إلى قائمة الطعام...</p>
+    </div>
+
+    <div class="instructions">
+        <h3>كيفية الطلب:</h3>
+        <ol>
+            <li>اضغط على زر "بدء الطلب"</li>
+            <li>اختر العناصر التي ترغب بها من القائمة</li>
+            <li>اضغط على أيقونة السلة للمراجعة والدفع</li>
+            <li>ستصلك طلباتك إلى الطاولة</li>
+        </ol>
+    </div>
+</div>
+
+<script>
+    // دالة لاستخراج معاملات URL
+    function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        for (const [key, value] of urlParams) {
+            params[key] = value;
+        }
+
+        return params;
+    }
+
+    // استخراج معرف الطاولة من الرابط
+    function getTableIdFromUrl() {
+        const params = getQueryParams();
+        return params.table;
+    }
+
+    // عرض رسالة خطأ
+    function showError(message) {
+        const errorElement = document.getElementById('error-message');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+
+        const btn = document.getElementById('start-order-btn');
+        btn.disabled = true;
+        btn.textContent = 'غير متاح';
+    }
+
+    // إخفاء رسالة الخطأ
+    function hideError() {
+        const errorElement = document.getElementById('error-message');
+        errorElement.style.display = 'none';
+
+        const btn = document.getElementById('start-order-btn');
+        btn.disabled = false;
+        btn.textContent = 'بدء الطلب';
+    }
+
+    // التحقق من صحة الطاولة وعرض معلوماتها
+    function validateAndDisplayTable() {
+        let tableId = getTableIdFromUrl();
+        const manualInput = document.getElementById('manual-table-input');
+        const tableNumberElement = document.getElementById('table-number');
+        const tableStatusElement = document.getElementById('table-status');
+
+        if (!tableId && manualInput.value) {
+            tableId = manualInput.value;
+        }
+
+        if (!tableId) {
+            tableNumberElement.textContent = '--';
+            tableStatusElement.textContent = '';
+            tableStatusElement.className = 'table-status';
+            return;
+        }
+
+        // في هذا المثال، نعتبر أن جميع الطاولات متاحة
+        tableNumberElement.textContent = tableId;
+        tableStatusElement.textContent = 'حالة: متاحة';
+        tableStatusElement.className = 'table-status status-available';
+        hideError();
+
+        return tableId;
+    }
+
+    function startOrder() {
+        let tableId = validateAndDisplayTable();
+
+        if (!tableId) {
+            showError('لم يتم تحديد طاولة. يرجى إدخال رقم الطاولة.');
+            return;
+        }
+
+        // إظهار حالة التحميل
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('start-order-btn').style.display = 'none';
+
+        // إرسال بيانات الطاولة إلى Flutter
+        if (sendTableDataToFlutter(tableId, tableId)) {
+            console.log('Table data sent to Flutter');
+
+            // توجيه إلى التطبيق الرئيسي
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        } else {
+            showError('حدث خطأ في الاتصال بالتطبيق. يرجى المحاولة مرة أخرى.');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('start-order-btn').style.display = 'block';
+        }
+    }
+
+    // دالة لإرسال بيانات الطاولة إلى Flutter
+    function sendTableDataToFlutter(tableId, tableNumber) {
+        try {
+            // الطريقة 1: استخدام Flutter JavaScript Channel
+            if (typeof flutterApp !== 'undefined' && flutterApp.postMessage) {
+                flutterApp.postMessage(JSON.stringify({
+                    type: 'tableData',
+                    tableId: tableId,
+                    tableNumber: tableNumber
+                }));
+                return true;
+            }
+
+            // الطريقة 2: استخدام localStorage (الطريقة الأساسية)
+            localStorage.setItem('selectedTableId', tableId);
+            localStorage.setItem('selectedTableNumber', tableNumber);
+            return true;
+        } catch (e) {
+            console.error('Error sending data to Flutter:', e);
+            return false;
+        }
+    }
+
+    // إعداد معالجات الأحداث
+    document.addEventListener('DOMContentLoaded', function() {
+        // التحقق من الطاولة عند تحميل الصفحة
+        const tableId = getTableIdFromUrl();
+        if (tableId) {
+            document.getElementById('manual-table-input').value = tableId;
+        }
+        validateAndDisplayTable();
+
+        // إضافة معالج الحدث للزر
+        document.getElementById('start-order-btn').addEventListener('click', startOrder);
+
+        // تحديث حالة الطاولة عند تغيير المدخلات
+        document.getElementById('manual-table-input').addEventListener('input', validateAndDisplayTable);
+
+        // السماح بالضغط على Enter في حقل الإدخال
+        document.getElementById('manual-table-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startOrder();
+            }
+        });
+    });
+</script>
+</body>
+</html>
