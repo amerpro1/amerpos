@@ -397,12 +397,8 @@
             </div>
             
             <h2>قائمة الطعام</h2>
-            <div class="categories">
-                <button class="category-btn active" onclick="filterProducts('all')">الكل</button>
-                <button class="category-btn" onclick="filterProducts('main')">الوجبات الرئيسية</button>
-                <button class="category-btn" onclick="filterProducts('appetizers')">المقبلات</button>
-                <button class="category-btn" onclick="filterProducts('drinks')">المشروبات</button>
-                <button class="category-btn" onclick="filterProducts('desserts')">الحلويات</button>
+            <div class="categories" id="categories-container">
+                <!-- سيتم ملء التصنيفات ديناميكياً -->
             </div>
             
             <div class="products-grid" id="products-container">
@@ -448,21 +444,23 @@
     </footer>
 
     <script>
-        // تهيئة Supabase
-        const supabaseUrl = 'https://ulfasrzrtbfmtjyohzrp.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsZmFzcnpydGJmbXRqeW9oenJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1MTQyNzksImV4cCI6MjA2MzA5MDI3OX0.Et1bJV2KqGlVsuwYekUqWSOCay9Hr5DLfhVhTL4Nu1o';
+        // تهيئة Supabase - استبدل هذه القيم بمعلومات مشروعك
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         // حالة التطبيق
         let currentTable = null;
         let cart = [];
         let products = [];
+        let categories = [];
         
         // عناصر DOM
         const qrSection = document.getElementById('qr-section');
         const menuSection = document.getElementById('menu-section');
         const confirmationSection = document.getElementById('confirmation-section');
         const productsContainer = document.getElementById('products-container');
+        const categoriesContainer = document.getElementById('categories-container');
         const cartCount = document.getElementById('cart-count');
         const cartPanel = document.getElementById('cart-panel');
         const cartItems = document.getElementById('cart-items');
@@ -489,12 +487,14 @@
                 }
             }).catch(err => {
                 console.error("Cannot get cameras", err);
+                alert('لا يمكن الوصول إلى الكاميرا. يرجى التأكد من السماح بالوصول إلى الكاميرا.');
             });
         }
         
         function onQRCodeScanned(decodedText, decodedResult) {
             console.log(`QR code scanned: ${decodedText}`);
-            const tableId = decodedText.split('table_')[1];
+            // افترض أن QR code يحتوي على ID الطاولة مباشرة
+            const tableId = decodedText;
             if (tableId) {
                 setTable(tableId);
                 html5Qrcode.stop();
@@ -512,13 +512,32 @@
         
         async function setTable(tableId) {
             try {
-                // تحديث حالة الطاولة في قاعدة البيانات
-                const { data, error } = await supabase
+                // التحقق من وجود الطاولة في قاعدة البيانات
+                const { data: table, error: tableError } = await supabase
                     .from('tables')
-                    .update({ is_occupied: true })
-                    .eq('id', tableId);
+                    .select('*')
+                    .eq('number', tableId)
+                    .single();
                 
-                if (error) throw error;
+                if (tableError) {
+                    if (tableError.code === 'PGRST116') {
+                        alert('رقم الطاولة غير صحيح. يرجى المحاولة مرة أخرى.');
+                    } else {
+                        throw tableError;
+                    }
+                    return;
+                }
+                
+                // تحديث حالة الطاولة إلى مشغولة
+                const { error: updateError } = await supabase
+                    .from('tables')
+                    .update({ 
+                        status: 'occupied',
+                        occupied_at: new Date().toISOString()
+                    })
+                    .eq('number', tableId);
+                
+                if (updateError) throw updateError;
                 
                 currentTable = tableId;
                 currentTableElement.textContent = `طاولة ${tableId}`;
@@ -527,7 +546,8 @@
                 qrSection.classList.add('hidden');
                 menuSection.classList.remove('hidden');
                 
-                // تحميل القائمة
+                // تحميل القائمة والتصنيفات
+                await loadCategories();
                 await loadMenu();
             } catch (error) {
                 console.error('Error setting table:', error);
@@ -535,13 +555,58 @@
             }
         }
         
+        async function loadCategories() {
+            try {
+                // جلب التصنيفات من Supabase
+                const { data, error } = await supabase
+                    .from('categories')
+                    .select('*')
+                    .order('id', { ascending: true });
+                
+                if (error) throw error;
+                
+                categories = data;
+                renderCategories();
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                // في حالة الخطأ، نعرض تصنيفات افتراضية
+                categories = [
+                    { id: 1, name: 'الوجبات الرئيسية' },
+                    { id: 2, name: 'المقبلات' },
+                    { id: 3, name: 'المشروبات' },
+                    { id: 4, name: 'الحلويات' }
+                ];
+                renderCategories();
+            }
+        }
+        
+        function renderCategories() {
+            categoriesContainer.innerHTML = '';
+            
+            // زر لعرض جميع المنتجات
+            const allButton = document.createElement('button');
+            allButton.className = 'category-btn active';
+            allButton.textContent = 'الكل';
+            allButton.onclick = () => filterProducts('all');
+            categoriesContainer.appendChild(allButton);
+            
+            // أزرار التصنيفات
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = category.name;
+                button.onclick = () => filterProducts(category.id);
+                categoriesContainer.appendChild(button);
+            });
+        }
+        
         async function loadMenu() {
             try {
                 // جلب البيانات من Supabase
                 const { data, error } = await supabase
-                    .from('products')
+                    .from('menu_items')
                     .select('*')
-                    .order('category', { ascending: true });
+                    .order('category_id', { ascending: true });
                 
                 if (error) throw error;
                 
@@ -550,25 +615,40 @@
             } catch (error) {
                 console.error('Error loading menu:', error);
                 alert('حدث خطأ في تحميل القائمة. يرجى المحاولة مرة أخرى.');
+                
+                // بيانات افتراضية للاختبار
+                products = [
+                    { id: 1, name: 'برجر لحم', descrip_item: 'برجر لحم مع الجبن والخضار', price: 25, category_id: 1, image_url: '' },
+                    { id: 2, name: 'برجر دجاج', descrip_item: 'برجر دجاج مع الخضار', price: 20, category_id: 1, image_url: '' },
+                    { id: 3, name: 'سلطة سيزر', descrip_item: 'سلطة طازجة مع صلصة سيزر', price: 15, category_id: 2, image_url: '' },
+                    { id: 4, name: 'كولا', descrip_item: 'مشروب غازي', price: 5, category_id: 3, image_url: '' },
+                    { id: 5, name: 'تشيز كيك', descrip_item: 'حلوى التشيز كيك اللذيذة', price: 12, category_id: 4, image_url: '' }
+                ];
+                renderProducts('all');
             }
         }
         
-        function renderProducts(category) {
+        function renderProducts(categoryId) {
             productsContainer.innerHTML = '';
             
-            const filteredProducts = category === 'all' 
+            const filteredProducts = categoryId === 'all' 
                 ? products 
-                : products.filter(p => p.category === category);
+                : products.filter(p => p.category_id === categoryId);
+            
+            if (filteredProducts.length === 0) {
+                productsContainer.innerHTML = '<p>لا توجد منتجات في هذا التصنيف</p>';
+                return;
+            }
             
             filteredProducts.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 
                 productCard.innerHTML = `
-                    <div class="product-image" style="background-image: url('${product.image_url || 'https://via.placeholder.com/300x200'}')"></div>
+                    <div class="product-image" style="background-image: url('${product.image_url || 'https://via.placeholder.com/300x200?text=No+Image'}')"></div>
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
-                        <div class="product-desc">${product.description}</div>
+                        <div class="product-desc">${product.descrip_item || 'لا يوجد وصف'}</div>
                         <div class="product-price">${product.price} درهم</div>
                         <div class="product-actions">
                             <div class="quantity-control">
@@ -585,7 +665,7 @@
             });
         }
         
-        function filterProducts(category) {
+        function filterProducts(categoryId) {
             // تحديث أزرار التصنيف النشطة
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -593,7 +673,7 @@
             event.target.classList.add('active');
             
             // عرض المنتجات حسب التصنيف
-            renderProducts(category);
+            renderProducts(categoryId);
         }
         
         function increaseQuantity(productId) {
@@ -694,14 +774,26 @@
                     return total + (item.product.price * item.quantity);
                 }, 0);
                 
+                // تحضير عناصر الطلب بتنسيق JSON
+                const orderItems = cart.map(item => ({
+                    id: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    quantity: item.quantity,
+                    total: item.product.price * item.quantity
+                }));
+                
                 // إدخال الطلب في قاعدة البيانات
                 const { data: order, error: orderError } = await supabase
                     .from('orders')
                     .insert([
                         { 
-                            table_id: currentTable, 
+                            table_number: currentTable,
+                            total: totalAmount,
+                            items: orderItems,
                             status: 'pending',
-                            total_amount: totalAmount
+                            payment_status: 'unpaid',
+                            order_type: 'dine_in'
                         }
                     ])
                     .select();
@@ -709,20 +801,6 @@
                 if (orderError) throw orderError;
                 
                 const orderId = order[0].id;
-                
-                // إدخال عناصر الطلب
-                const orderItems = cart.map(item => ({
-                    order_id: orderId,
-                    product_id: item.product.id,
-                    quantity: item.quantity,
-                    price: item.product.price
-                }));
-                
-                const { error: itemsError } = await supabase
-                    .from('order_items')
-                    .insert(orderItems);
-                
-                if (itemsError) throw itemsError;
                 
                 // إظهار تأكيد الطلب
                 document.getElementById('order-number').textContent = `ORD-${orderId}`;
