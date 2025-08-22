@@ -1,207 +1,403 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-  <base href="/amerpos/">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="نظام إدارة المطعم">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="نظام المطعم">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>نظام المطعم - AmerPOS</title>
-  <link rel="manifest" href="manifest.json">
-
-  <script>
-    // حالة تحميل التطبيق
-    let appLoaded = false;
-    
-    // دالة للاتصال بتطبيق Flutter
-    window.sendTableDataToFlutter = function(tableId, tableNumber) {
-      // إذا كان التطبيق محمل، أرسل البيانات مباشرة
-      if (appLoaded && window.flutterApp && window.flutterApp.postMessage) {
-        window.flutterApp.postMessage(JSON.stringify({
-          type: 'tableData',
-          tableId: tableId,
-          tableNumber: tableNumber
-        }));
-        return true;
-      }
-      
-      // إذا لم يكن محمل بعد، احفظ البيانات في localStorage
-      try {
-        localStorage.setItem('selectedTableId', tableId);
-        localStorage.setItem('selectedTableNumber', tableNumber);
-        return true;
-      } catch (e) {
-        console.error('Error saving to localStorage:', e);
-        return false;
-      }
-    };
-
-    // عند تحميل الصفحة، تحقق من وجود معاملات URL
-    window.addEventListener('load', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tableId = urlParams.get('table');
-
-      if (tableId) {
-        console.log('Table ID from URL:', tableId);
-        window.sendTableDataToFlutter(tableId, tableId);
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-      
-      // تحقق من وجود بيانات طاولة في localStorage
-      const savedTableId = localStorage.getItem('selectedTableId');
-      const savedTableNumber = localStorage.getItem('selectedTableNumber');
-      
-      if (savedTableId && savedTableNumber) {
-        console.log('Found table data in localStorage:', savedTableId, savedTableNumber);
-        // البيانات ستُرسل عندما يصبح التطبيق جاهزاً
-      }
-      
-      // بدء تحميل تطبيق Flutter بعد تأخير بسيط
-      setTimeout(loadFlutterApp, 100);
-    });
-    
-    function loadFlutterApp() {
-      const script = document.createElement('script');
-      script.src = 'flutter_bootstrap.js';
-      script.async = true;
-      script.onload = function() {
-        console.log('Flutter bootstrap script loaded');
-      };
-      document.head.appendChild(script);
-    }
-    
-    // تعريف دالة استقبال الرسائل من Flutter
-    window.addEventListener('flutter-app-loaded', function() {
-      console.log('Flutter app is loaded');
-      appLoaded = true;
-      document.querySelector('.loading-container').style.display = 'none';
-      
-      // إرسال أي بيانات طاولة مخزنة
-      const savedTableId = localStorage.getItem('selectedTableId');
-      const savedTableNumber = localStorage.getItem('selectedTableNumber');
-      
-      if (savedTableId && savedTableNumber && window.flutterApp && window.flutterApp.postMessage) {
-        window.flutterApp.postMessage(JSON.stringify({
-          type: 'tableData',
-          tableId: savedTableId,
-          tableNumber: savedTableNumber
-        }));
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ربط تطبيق Flutter مع النطاق - AmerPOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
         
-        // مسح البيانات بعد إرسالها
-        localStorage.removeItem('selectedTableId');
-        localStorage.removeItem('selectedTableNumber');
-      }
-    });
-  </script>
-  
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Tajawal', sans-serif;
-      background: linear-gradient(135deg, #FF6B00 0%, #FFA200 50%, #FF6B00 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: white;
-    }
-    
-    .loading-container {
-      text-align: center;
-      padding: 2rem;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      max-width: 90%;
-    }
-    
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid #FFFFFF;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    h1 {
-      margin: 0 0 1rem 0;
-      font-size: 1.5rem;
-    }
-    
-    .error {
-      display: none;
-      background: rgba(255, 0, 0, 0.2);
-      border: 1px solid rgba(255, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 15px;
-    }
-    
-    .retry-btn {
-      background-color: #FFFFFF;
-      color: #FF6B00;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 15px;
-      font-family: 'Tajawal', sans-serif;
-    }
-    
-    @media (max-width: 600px) {
-      .loading-container {
-        padding: 1.5rem;
-      }
-      
-      h1 {
-        font-size: 1.3rem;
-      }
-    }
-  </style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            color: #2980b9;
+            margin: 25px 0 15px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .code-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+        
+        .qr-simulator {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .qr-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            background: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #3498db;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        
+        .order-container {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .table-input {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #d35400;
+        }
+        
+        .order-summary {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .total {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #7f8c8d;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .qr-simulator {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="loading-container">
-    <div class="spinner"></div>
-    <h1>نظام إدارة المطعم</h1>
-    <p>جاري تحميل التطبيق...</p>
-    <div class="error" id="error-message"></div>
-    <button class="retry-btn" id="retry-btn" style="display: none;">إعادة المحاولة</button>
-  </div>
-  
-  <script>
-    // التحقق من أن التطبيق قد تم تحميله خلال وقت معقول
-    setTimeout(function() {
-      if (!appLoaded) {
-        document.getElementById('error-message').textContent = 'يبدو أن هناك مشكلة في تحميل التطبيق. يرجى المحاولة مرة أخرى.';
-        document.getElementById('error-message').style.display = 'block';
-        document.getElementById('retry-btn').style.display = 'block';
-      }
-    }, 10000); // 10 ثواني
-    
-    document.getElementById('retry-btn').addEventListener('click', function() {
-      window.location.reload();
-    });
-  </script>
+    <div class="container">
+        <header>
+            <h1>ربط تطبيق Flutter مع النطاق - AmerPOS</h1>
+            <p>دليل عملي لربط تطبيق Flutter مع النطاق https://amerpro1.github.io/amerpos/</p>
+        </header>
+        
+        <div class="card">
+            <h2><span class="step-number">1</span> بناء تطبيق Flutter للويب</h2>
+            <p>لربط تطبيق Flutter مع النطاق، يجب أولاً بناء التطبيق للويب:</p>
+            
+            <div class="code-example">
+                # الانتقال إلى مجلد المشروع<br>
+                cd amerpos<br><br>
+                
+                # بناء تطبيق Flutter للويب<br>
+                flutter build web --release<br><br>
+                
+                # سيكون التطبيق جاهزًا في مجلد build/web
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="step-number">2</span> رفع الملفات إلى GitHub Pages</h2>
+            <p>بعد بناء التطبيق، يجب رفع محتويات مجلد build/web إلى مستودع GitHub:</p>
+            
+            <div class="code-example">
+                # الانتقال إلى مجلد البناء<br>
+                cd build/web<br><br>
+                
+                # تهيئة مستودع Git (إذا لم يكن موجودًا)<br>
+                git init<br>
+                git add .<br>
+                git commit -m "نشر تطبيق AmerPOS"<br><br>
+                
+                # إضافة المستودع البعيد<br>
+                git remote add origin https://github.com/amerpro1/amerpos.git<br><br>
+                
+                # رفع الملفات<br>
+                git push -f origin main:gh-pages
+            </div>
+            
+            <p>تأكد من تفعيل GitHub Pages في إعدادات المستودع واختيار فرع gh-pages كمصدر.</p>
+        </div>
+        
+        <div class="card">
+            <h2><span class="step-number">3</span> تهيئة تطبيق Flutter للويب</h2>
+            <p>يجب تعديل ملف web/index.html في مشروع Flutter لدعم النطاق:</p>
+            
+            <div class="code-example">
+                &lt;!-- إعداد base href للنطاق --&gt;<br>
+                &lt;base href="/amerpos/"&gt;<br><br>
+                
+                &lt;!-- إعداد عنوان الصفحة --&gt;<br>
+                &lt;title&gt;نظام المطعم - AmerPOS&lt;/title&gt;<br><br>
+                
+                &lt;!-- إعداد وصف الصفحة --&gt;<br>
+                &lt;meta name="description" content="نظام إدارة المطعم AmerPOS"&gt;
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="step-number">4</span> إعداد استقبال معاملات URL</h2>
+            <p>للاستفادة من معاملات URL مثل ?table=5، يجب إضافة هذا الكود إلى web/index.html:</p>
+            
+            <div class="code-example">
+                &lt;script&gt;<br>
+                &nbsp;&nbsp;// عند تحميل الصفحة، تحقق من وجود معاملات URL<br>
+                &nbsp;&nbsp;window.addEventListener('load', function() {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;const urlParams = new URLSearchParams(window.location.search);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;const tableId = urlParams.get('table');<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;if (tableId) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// تخزين رقم الطاولة في localStorage<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localStorage.setItem('selectedTableId', tableId);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localStorage.setItem('selectedTableNumber', tableId);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// إرسال بيانات الطاولة إلى Flutter عند تحميله<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.addEventListener('flutter-app-loaded', function() {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (window.flutterApp && window.flutterApp.postMessage) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.flutterApp.postMessage(JSON.stringify({<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'tableData',<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tableId: tableId,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tableNumber: tableId<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}));<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;});<br>
+                &lt;/script&gt;
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="step-number">5</span> إعداد قناة اتصال JavaScript في Flutter</h2>
+            <p>في تطبيق Flutter، يجب إضافة قناة اتصال JavaScript لاستقبال البيانات:</p>
+            
+            <div class="code-example">
+                // في دالة main في ملف main.dart<br>
+                import 'package:js/js.dart';<br><br>
+                
+                // تعريف دالة JavaScript يمكن استدعاؤها من Flutter<br>
+                @JS('window.sendTableDataToFlutter')<br>
+                external void setSendTableDataToFlutter(Function f);<br><br>
+                
+                // دالة لاستقبال بيانات الطاولة من JavaScript<br>
+                void receiveTableData(String tableId, String tableNumber) {<br>
+                &nbsp;&nbsp;// معالجة بيانات الطاولة هنا<br>
+                &nbsp;&nbsp;print('تم استقبال بيانات الطاولة: $tableId, $tableNumber');<br>
+                &nbsp;&nbsp;// يمكنك حفظ البيانات في حالة التطبيق أو Provider<br>
+                }<br><br>
+                
+                void main() {<br>
+                &nbsp;&nbsp;// تسجيل دالة الاستقبال في JavaScript<br>
+                &nbsp;&nbsp;setSendTableDataToFlutter(allowInterop(receiveTableData));<br>
+                &nbsp;&nbsp;<br>
+                &nbsp;&nbsp;runApp(MyApp());<br>
+                }
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="step-number">6</span> اختبار الربط</h2>
+            <p>بعد اكتمال الخطوات السابقة، يمكنك اختبار الربط عن طريق:</p>
+            
+            <ol>
+                <li>فتح المتصفح والتوجه إلى https://amerpro1.github.io/amerpos/</li>
+                <li>إضافة معامل table إلى الرابط: https://amerpro1.github.io/amerpos/?table=5</li>
+                <li>التحقق من ظهور بيانات الطاولة في التطبيق</li>
+            </ol>
+            
+            <p>يمكنك محاكاة الاختبار باستخدام الأدوات أدناه:</p>
+            
+            <div class="table-input">
+                <input type="number" id="test-table-number" placeholder="أدخل رقم الطاولة" value="5" min="1" max="20">
+                <button onclick="testTableLink()">اختبار الرابط</button>
+            </div>
+            
+            <div id="test-result"></div>
+        </div>
+    </div>
+
+    <script>
+        function testTableLink() {
+            const tableNumber = document.getElementById('test-table-number').value;
+            const testResult = document.getElementById('test-result');
+            
+            if (!tableNumber) {
+                testResult.innerHTML = '<p style="color: red;">يرجى إدخال رقم الطاولة</p>';
+                return;
+            }
+            
+            const testLink = `https://amerpro1.github.io/amerpos/?table=${tableNumber}`;
+            
+            testResult.innerHTML = `
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> 
+                    <p>تم إنشاء الرابط بنجاح:</p>
+                    <p><a href="${testLink}" target="_blank">${testLink}</a></p>
+                    <p>انسخ هذا الرابط وضعه في متصفح للاختبار، أو انقر فوقه لفتحه في نافذة جديدة.</p>
+                </div>
+            `;
+        }
+        
+        // محاكاة معالجة معاملات URL
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+            
+            return params;
+        }
+        
+        // عند تحميل الصفحة، تحقق من وجود معاملات في URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = getQueryParams();
+            if (params.table) {
+                document.getElementById('test-table-number').value = params.table;
+            }
+        });
+    </script>
 </body>
 </html>
