@@ -484,7 +484,7 @@
         </div>
         <div class="cart-total">
             <span>المجموع:</span>
-            <span id="cart-total">0.00</span> <span>درهم</span>
+            <span id="cart-total">0.00</span> <span>د.ع</span>
         </div>
         <button class="btn btn-success order-btn" onclick="placeOrder()">تأكيد الطلب</button>
     </div>
@@ -772,7 +772,7 @@
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
                         <div class="product-desc">${product.descrip_item || 'لا يوجد وصف'}</div>
-                        <div class="product-price">${product.price} درهم</div>
+                        <div class="product-price">${product.price} د.ع</div>
                         <div class="product-actions">
                             <div class="quantity-control">
                                 <button class="quantity-btn" onclick="decreaseQuantity(${product.id})">-</button>
@@ -862,7 +862,7 @@
                 cartItem.innerHTML = `
                     <div class="cart-item-info">
                         <div class="cart-item-name">${item.product.name}</div>
-                        <div class="cart-item-price">${item.product.price} × ${item.quantity} = ${itemTotal} درهم</div>
+                        <div class="cart-item-price">${item.product.price} × ${item.quantity} = ${itemTotal} د.ع</div>
                     </div>
                     <button class="btn btn-danger" onclick="removeFromCart(${index})">
                         <i class="fas fa-trash"></i>
