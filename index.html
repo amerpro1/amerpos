@@ -6,6 +6,7 @@
     <title>مطعمنا </title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4e54c8;
@@ -121,6 +122,155 @@
         
         .btn-danger {
             background: var(--danger);
+        }
+        
+        .btn-large {
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .welcome-header {
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .delivery-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .option-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: #f0f7ff;
+        }
+        
+        .option-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+        
+        .option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .option-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-body {
+            padding: 1.5rem;
+        }
+        
+        .option-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        .delivery-form {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.2);
         }
         
         .qr-scanner {
@@ -430,8 +580,96 @@
     <div class="container">
         <div id="connection-status"></div>
 
+        <!-- قسم الترحيب -->
+        <section id="welcome-section" class="section">
+            <div class="welcome-header">
+                <div class="welcome-logo">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h1 class="welcome-title">مرحباً بكم في مطعمنا</h1>
+                <p class="welcome-subtitle">نقدم لكم أشهى المأكولات وأطيب المشروبات بأجواء عائلية مميزة</p>
+            </div>
+            
+            <div class="welcome-features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="feature-title">توصيل سريع</h3>
+                    <p>توصيل طلباتكم خلال 30 دقيقة</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3 class="feature-title">وجبات لذيذة</h3>
+                    <p>أشهى المأكولات بأفضل المكونات</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="feature-title">جودة عالية</h3>
+                    <p>نحرص على تقديم الأفضل لزبائننا</p>
+                </div>
+            </div>
+            
+            <h2>كيف تفضل تناول طلبك؟</h2>
+            
+            <div class="delivery-options">
+                <div class="option-card" id="dine-in-option" onclick="selectOption('dine-in')">
+                    <div class="option-header">
+                        <div class="option-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <h3 class="option-title">تناول في المطعم</h3>
+                    </div>
+                    <div class="option-body">
+                        <p class="option-description">استمتع بتجربة تناول الطعام في أجواءنا المميزة</p>
+                        <button class="btn">اختيار الطاولة</button>
+                    </div>
+                </div>
+                
+                <div class="option-card" id="delivery-option" onclick="selectOption('delivery')">
+                    <div class="option-header">
+                        <div class="option-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h3 class="option-title">توصيل إلى المنزل</h3>
+                    </div>
+                    <div class="option-body">
+                        <p class="option-description">اطلب ما تشتهيه وسنوصله إليك أينما كنت</p>
+                        <button class="btn">إدخال العنوان</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="dine-in-content" class="hidden">
+                <button class="btn btn-large" onclick="proceedToMenu()">بدء الطلب</button>
+            </div>
+            
+            <div id="delivery-form" class="delivery-form hidden">
+                <h2>معلومات التوصيل</h2>
+                <div class="form-group">
+                    <label class="form-label">الاسم الكامل</label>
+                    <input type="text" class="form-input" id="customer-name" placeholder="أدخل اسمك الكامل">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رقم الهاتف</label>
+                    <input type="tel" class="form-input" id="customer-phone" placeholder="أدخل رقم هاتفك">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">العنوان</label>
+                    <input type="text" class="form-input" id="customer-address" placeholder="أدخل عنوانك بالتفصيل">
+                </div>
+                <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
+            </div>
+        </section>
+
         <!-- قسم مسح QR code -->
-        <section id="qr-section" class="section">
+        <section id="qr-section" class="section hidden">
             <h2>مسح كود الطاولة</h2>
             <div class="qr-scanner">
                 <p>يرجى توجيه الكاميرا نحو كود الطاولة لبدء الطلب</p>
@@ -444,9 +682,14 @@
 
         <!-- قسم القائمة -->
         <section id="menu-section" class="section hidden">
-            <div class="table-info">
+            <div class="table-info" id="table-info">
                 <p>أنت تجلس على</p>
                 <div class="table-number" id="current-table">طاولة 4</div>
+            </div>
+            
+            <div id="delivery-info" class="table-info hidden">
+                <p>طلب التوصيل إلى:</p>
+                <div class="table-number" id="delivery-address">العنصر</div>
             </div>
             
             <h2>قائمة الطعام</h2>
@@ -504,14 +747,24 @@
         
         // حالة التطبيق
         let currentTable = null;
+        let orderType = null; // 'dine-in' أو 'delivery'
+        let customerInfo = null;
         let cart = [];
         let products = [];
         let categories = [];
         
         // عناصر DOM
+        const welcomeSection = document.getElementById('welcome-section');
         const qrSection = document.getElementById('qr-section');
         const menuSection = document.getElementById('menu-section');
         const confirmationSection = document.getElementById('confirmation-section');
+        const dineInOption = document.getElementById('dine-in-option');
+        const deliveryOption = document.getElementById('delivery-option');
+        const dineInContent = document.getElementById('dine-in-content');
+        const deliveryForm = document.getElementById('delivery-form');
+        const tableInfo = document.getElementById('table-info');
+        const deliveryInfo = document.getElementById('delivery-info');
+        const deliveryAddress = document.getElementById('delivery-address');
         const productsContainer = document.getElementById('products-container');
         const categoriesContainer = document.getElementById('categories-container');
         const cartCount = document.getElementById('cart-count');
@@ -528,12 +781,68 @@
             return urlParams.get(name);
         }
         
+        // اختيار نوع الطلب (توصيل أو تناول في المطعم)
+        function selectOption(type) {
+            orderType = type;
+            
+            // إزالة التحديد من جميع الخيارات
+            dineInOption.classList.remove('selected');
+            deliveryOption.classList.remove('selected');
+            
+            // إظهار العناصر المناسبة حسب النوع
+            if (type === 'dine-in') {
+                dineInOption.classList.add('selected');
+                dineInContent.classList.remove('hidden');
+                deliveryForm.classList.add('hidden');
+            } else if (type === 'delivery') {
+                deliveryOption.classList.add('selected');
+                dineInContent.classList.add('hidden');
+                deliveryForm.classList.remove('hidden');
+            }
+        }
+        
+        // المتابعة إلى القائمة
+        function proceedToMenu() {
+            if (orderType === 'dine-in') {
+                // إذا كان تناول في المطعم، ننتقل إلى مسح QR code
+                welcomeSection.classList.add('hidden');
+                qrSection.classList.remove('hidden');
+            } else if (orderType === 'delivery') {
+                // إذا كان توصيل، نتحقق من البيانات المدخلة
+                const name = document.getElementById('customer-name').value;
+                const phone = document.getElementById('customer-phone').value;
+                const address = document.getElementById('customer-address').value;
+                
+                if (!name || !phone || !address) {
+                    alert('يرجى ملء جميع حقول معلومات التوصيل');
+                    return;
+                }
+                
+                // حفظ معلومات العميل
+                customerInfo = { name, phone, address };
+                
+                // إخفاء قسم الترحيب وإظهار قسم القائمة
+                welcomeSection.classList.add('hidden');
+                menuSection.classList.remove('hidden');
+                
+                // إظهار معلومات التوصيل وإخفاء معلومات الطاولة
+                tableInfo.classList.add('hidden');
+                deliveryInfo.classList.remove('hidden');
+                deliveryAddress.textContent = address;
+                
+                // تحميل القائمة
+                loadCategories();
+                loadMenu();
+            }
+        }
+        
         // التحقق من وجود معامل table في URL
         function checkUrlForTableNumber() {
             const tableNumber = getQueryParam('table');
             if (tableNumber) {
-                // إخفاء قسم QR code
-                qrSection.classList.add('hidden');
+                // إذا كان هناك معامل table في الرابط، نتخطى واجهة الترحيب
+                welcomeSection.classList.add('hidden');
+                qrSection.classList.remove('hidden');
                 // تعيين الطاولة مباشرة
                 setTable(tableNumber);
             }
@@ -668,6 +977,10 @@
                 // إخفاء قسم QR وإظهار قسم القائمة
                 qrSection.classList.add('hidden');
                 menuSection.classList.remove('hidden');
+                
+                // إظهار معلومات الطاولة وإخفاء معلومات التوصيل
+                tableInfo.classList.remove('hidden');
+                deliveryInfo.classList.add('hidden');
                 
                 // تحميل القائمة والتصنيفات
                 await loadCategories();
@@ -906,19 +1219,29 @@
                     total: item.product.price * item.quantity
                 }));
                 
+                // تحديد نوع الطلب وحالته
+                let orderData = {
+                    total: totalAmount,
+                    items: orderItems,
+                    status: 'pending',
+                    payment_status: 'unpaid'
+                };
+                
+                // إضافة البيانات حسب نوع الطلب
+                if (orderType === 'dine-in') {
+                    orderData.order_type = 'dine_in';
+                    orderData.table_number = currentTable;
+                } else if (orderType === 'delivery') {
+                    orderData.order_type = 'delivery';
+                    orderData.customer_name = customerInfo.name;
+                    orderData.customer_phone = customerInfo.phone;
+                    orderData.delivery_address = customerInfo.address;
+                }
+                
                 // إدخال الطلب في قاعدة البيانات
                 const { data: order, error: orderError } = await supabase
                     .from('orders')
-                    .insert([
-                        { 
-                            table_number: currentTable,
-                            total: totalAmount,
-                            items: orderItems,
-                            status: 'pending',
-                            payment_status: 'unpaid',
-                            order_type: 'dine_in'
-                        }
-                    ])
+                    .insert([orderData])
                     .select();
                 
                 if (orderError) throw orderError;
@@ -943,8 +1266,10 @@
         
         function newOrder() {
             confirmationSection.classList.add('hidden');
-            qrSection.classList.remove('hidden');
+            welcomeSection.classList.remove('hidden');
             currentTable = null;
+            orderType = null;
+            customerInfo = null;
             // إعادة تحميل الصفحة بدون معاملات URL
             window.location.href = window.location.origin + window.location.pathname;
         }
