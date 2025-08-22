@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب الطعام - المطعم</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>مطعمنا - طاولة رقم 4</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
@@ -416,7 +415,7 @@
 <body>
     <div class="loading" id="loading">
         <div class="spinner"></div>
-        <p>جاري التحقق من الاتصال بقاعدة البيانات...</p>
+        <p>جاري التحميل...</p>
     </div>
 
     <header>
@@ -447,7 +446,7 @@
         <section id="menu-section" class="section hidden">
             <div class="table-info">
                 <p>أنت تجلس على</p>
-                <div class="table-number" id="current-table">طاولة 5</div>
+                <div class="table-number" id="current-table">طاولة 4</div>
             </div>
             
             <h2>قائمة الطعام</h2>
@@ -522,6 +521,23 @@
         const currentTableElement = document.getElementById('current-table');
         const loadingElement = document.getElementById('loading');
         const connectionStatusElement = document.getElementById('connection-status');
+        
+        // دالة لمعالجة معاملات URL
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // التحقق من وجود معامل table في URL
+        function checkUrlForTableNumber() {
+            const tableNumber = getQueryParam('table');
+            if (tableNumber) {
+                // إخفاء قسم QR code
+                qrSection.classList.add('hidden');
+                // تعيين الطاولة مباشرة
+                setTable(tableNumber);
+            }
+        }
         
         // اختبار الاتصال بقاعدة البيانات
         async function testConnection() {
@@ -929,13 +945,16 @@
             confirmationSection.classList.add('hidden');
             qrSection.classList.remove('hidden');
             currentTable = null;
-            startQRScanner();
+            // إعادة تحميل الصفحة بدون معاملات URL
+            window.location.href = window.location.origin + window.location.pathname;
         }
         
-        // بدء المسح عند تحميل الصفحة
+        // بدء التطبيق عند تحميل الصفحة
         window.onload = function() {
             testConnection();
             startQRScanner();
+            // التحقق من وجود معامل table في URL
+            checkUrlForTableNumber();
         };
     </script>
 </body>
