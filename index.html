@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>طلب الطعام - المطعم</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
@@ -364,9 +364,61 @@
             color: white;
             margin-top: 2rem;
         }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .connection-status {
+            padding: 10px;
+            text-align: center;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .connection-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .connection-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>جاري التحقق من الاتصال بقاعدة البيانات...</p>
+    </div>
+
     <header>
         <div class="container">
             <div class="logo">
@@ -377,6 +429,8 @@
     </header>
 
     <div class="container">
+        <div id="connection-status"></div>
+
         <!-- قسم مسح QR code -->
         <section id="qr-section" class="section">
             <h2>مسح كود الطاولة</h2>
@@ -444,7 +498,7 @@
     </footer>
 
     <script>
-        // تهيئة Supabase - استبدل هذه القيم بمعلومات مشروعك
+        // تهيئة Supabase
         const supabaseUrl = 'https://ulfasrzrtbfmtjyohzrp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsZmFzcnpydGJmbXRqeW9oenJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1MTQyNzksImV4cCI6MjA2MzA5MDI3OX0.Et1bJV2KqGlVsuwYekUqWSOCay9Hr5DLfhVhTL4Nu1o';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -466,6 +520,59 @@
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
         const currentTableElement = document.getElementById('current-table');
+        const loadingElement = document.getElementById('loading');
+        const connectionStatusElement = document.getElementById('connection-status');
+        
+        // اختبار الاتصال بقاعدة البيانات
+        async function testConnection() {
+            try {
+                // اختبار جلب التصنيفات
+                const { data: categories, error: catError } = await supabase
+                    .from('categories')
+                    .select('*')
+                    .limit(1);
+                
+                if (catError) {
+                    showConnectionStatus('خطأ في الاتصال بقاعدة البيانات: ' + catError.message, false);
+                    console.error('Error connecting to categories:', catError);
+                } else {
+                    showConnectionStatus('تم الاتصال بنجاح بقاعدة البيانات', true);
+                    console.log('Successfully connected to Supabase. Categories:', categories);
+                }
+                
+                // اختبار جلب عناصر القائمة
+                const { data: menuItems, error: menuError } = await supabase
+                    .from('menu_items')
+                    .select('*')
+                    .limit(1);
+                    
+                if (menuError) {
+                    console.error('Error connecting to menu_items:', menuError);
+                } else {
+                    console.log('Menu items:', menuItems);
+                }
+                
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                showConnectionStatus('فشل اختبار الاتصال بقاعدة البيانات', false);
+            } finally {
+                // إخفاء شاشة التحميل بعد 2 ثانية
+                setTimeout(() => {
+                    loadingElement.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        function showConnectionStatus(message, isSuccess) {
+            connectionStatusElement.textContent = message;
+            connectionStatusElement.className = isSuccess ? 'connection-status connection-success' : 'connection-status connection-error';
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                connectionStatusElement.textContent = '';
+                connectionStatusElement.className = '';
+            }, 5000);
+        }
         
         // تهيئة قارئ QR code
         const html5Qrcode = new Html5Qrcode("qr-reader");
@@ -826,7 +933,10 @@
         }
         
         // بدء المسح عند تحميل الصفحة
-        window.onload = startQRScanner;
+        window.onload = function() {
+            testConnection();
+            startQRScanner();
+        };
     </script>
 </body>
 </html>
