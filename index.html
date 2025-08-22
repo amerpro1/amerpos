@@ -3,21 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب الطعام - المطعم</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <title>منشئ رموز QR للطاولات - مطعمنا</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root {
-            --primary: #4e54c8;
-            --primary-dark: #3f43a5;
-            --secondary: #ff9d00;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --danger: #dc3545;
-        }
-        
         * {
             box-sizing: border-box;
             margin: 0;
@@ -26,917 +14,427 @@
         }
         
         body {
-            background-color: #f5f7fa;
-            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #343a40;
             line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 100%;
-            padding: 0 15px;
+            max-width: 1000px;
             margin: 0 auto;
-        }
-        
-        @media (min-width: 768px) {
-            .container {
-                max-width: 720px;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .container {
-                max-width: 960px;
-            }
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 1rem;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4e54c8;
         }
         
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+        h1 {
+            color: #4e54c8;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
         }
         
-        .logo i {
-            color: var(--secondary);
-        }
-        
-        .section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        h2 {
-            color: var(--primary);
-            margin-bottom: 1.2rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-secondary {
-            background: var(--secondary);
-        }
-        
-        .btn-secondary:hover {
-            background: #e88f00;
-        }
-        
-        .btn-success {
-            background: var(--success);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-        }
-        
-        .qr-scanner {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border: 2px solid var(--primary);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .table-info {
-            text-align: center;
-            padding: 1rem;
+        .domain-info {
             background: #e8f4ff;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .table-number {
-            font-size: 1.5rem;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
             font-weight: bold;
-            color: var(--primary);
+            color: #2c6fb1;
+            border-right: 4px solid #4e54c8;
         }
         
-        .categories {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 1rem 0;
-            margin-bottom: 1rem;
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #eaeaea;
         }
         
-        .category-btn {
-            padding: 0.6rem 1.2rem;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
+        .instructions h3 {
+            color: #4e54c8;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
         }
         
-        .category-btn.active {
-            background: var(--primary);
-            color: white;
+        .instructions ol {
+            margin-right: 20px;
+            margin-bottom: 10px;
         }
         
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+        .instructions li {
+            margin-bottom: 12px;
+            padding-right: 10px;
         }
         
-        .product-card {
+        .form-section {
             background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid #eee;
         }
         
-        .product-card:hover {
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4e54c8;
+            font-size: 1.1rem;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #4e54c8;
+            outline: none;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #4e54c8 0%, #3f43a5 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: block;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(78, 84, 200, 0.3);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(78, 84, 200, 0.4);
+        }
+        
+        .preview {
+            margin-top: 40px;
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .preview h2 {
+            color: #4e54c8;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        #qrcode {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 2px solid #eaeaea;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-print {
+            background: linear-gradient(135deg, #ff9d00 0%, #e88f00 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 157, 0, 0.3);
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 157, 0, 0.4);
+        }
+        
+        .sticker-sample {
+            margin-top: 50px;
+            border-top: 2px solid #eee;
+            padding-top: 30px;
+        }
+        
+        .sticker-sample h2 {
+            text-align: center;
+            color: #4e54c8;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+        
+        .samples-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+        
+        .sticker {
+            display: inline-block;
+            width: 220px;
+            padding: 20px;
+            text-align: center;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .sticker:hover {
             transform: translateY(-5px);
         }
         
-        .product-image {
-            height: 160px;
-            background-color: #f0f0f0;
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .product-info {
-            padding: 1rem;
-        }
-        
-        .product-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .product-desc {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.8rem;
-            height: 40px;
-            overflow: hidden;
-        }
-        
-        .product-price {
-            font-weight: bold;
-            color: var(--primary);
+        .sticker h4 {
+            margin: 15px 0;
+            color: #4e54c8;
             font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .product-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .quantity-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: none;
-            background: #f0f0f0;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .cart {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 90;
-        }
-        
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--secondary);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .cart-panel {
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 400px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            padding: 1.5rem;
-            overflow-y: auto;
-            z-index: 95;
-            display: none;
-        }
-        
-        .cart-panel.show {
-            display: block;
-        }
-        
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .cart-item-info {
-            flex-grow: 1;
-        }
-        
-        .cart-item-name {
-            font-weight: bold;
-        }
-        
-        .cart-item-price {
-            color: var(--primary);
-        }
-        
-        .cart-total {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 1.2rem;
-            padding: 1rem 0;
-            border-top: 2px solid #f0f0f0;
-            margin-top: 1rem;
-        }
-        
-        .order-btn {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .thank-you {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .thank-you i {
-            font-size: 4rem;
-            color: var(--success);
-            margin-bottom: 1rem;
-        }
-        
-        .thank-you h2 {
-            color: var(--success);
-            border: none;
         }
         
         footer {
             text-align: center;
-            padding: 2rem;
-            background: var(--dark);
-            color: white;
-            margin-top: 2rem;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #eee;
+            color: #6c757d;
         }
         
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
         }
         
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .connection-status {
-            padding: 10px;
-            text-align: center;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        
-        .connection-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .connection-error {
-            background-color: #f8d7da;
-            color: #721c24;
+        @media print {
+            .form-section, .instructions, .actions, .sticker-sample, footer {
+                display: none;
+            }
+            
+            .preview {
+                display: block !important;
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            #qrcode {
+                box-shadow: none;
+                border: none;
+                margin: 20px auto;
+            }
+            
+            body, .container {
+                background: white;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p>جاري التحقق من الاتصال بقاعدة البيانات...</p>
-    </div>
-
-    <header>
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-utensils"></i>
-                <span>مطعمنا</span>
-            </div>
-        </div>
-    </header>
-
     <div class="container">
-        <div id="connection-status"></div>
-
-        <!-- قسم مسح QR code -->
-        <section id="qr-section" class="section">
-            <h2>مسح كود الطاولة</h2>
-            <div class="qr-scanner">
-                <p>يرجى توجيه الكاميرا نحو كود الطاولة لبدء الطلب</p>
-                <div id="qr-reader"></div>
-                <p>أو أدخل رقم الطاولة يدوياً</p>
-                <input type="number" id="manual-table-input" placeholder="رقم الطاولة" style="padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #ccc;">
-                <button class="btn" onclick="setTableManual()">تأكيد</button>
+        <header>
+            <h1>منشئ رموز QR للطاولات</h1>
+            <p>أنشئ رموز QR للطاولات لتمكين العملاء من الوصول إلى القائمة مباشرة</p>
+            <div class="domain-info">
+                النطاق المستخدم: https://amerpro1.github.io/amerpos/
             </div>
-        </section>
-
-        <!-- قسم القائمة -->
-        <section id="menu-section" class="section hidden">
-            <div class="table-info">
-                <p>أنت تجلس على</p>
-                <div class="table-number" id="current-table">طاولة 5</div>
+        </header>
+        
+        <div class="instructions">
+            <h3>كيفية الاستخدام:</h3>
+            <ol>
+                <li>أدخل رقم الطاولة في الحقل أدناه</li>
+                <li>انقر على زر "إنشاء رمز QR"</li>
+                <li>قم بتحميل أو طباعة الرمز المنشأ</li>
+                <li>الصق الاستيكر على الطاولة المقابلة</li>
+                <li>عندما يمسح العميل الرمز، سيتم توجيهه إلى قائمة الطاولة</li>
+            </ol>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label for="tableNumber">رقم الطاولة:</label>
+                <input type="number" id="tableNumber" min="1" placeholder="أدخل رقم الطاولة">
             </div>
             
-            <h2>قائمة الطعام</h2>
-            <div class="categories" id="categories-container">
-                <!-- سيتم ملء التصنيفات ديناميكياً -->
-            </div>
-            
-            <div class="products-grid" id="products-container">
-                <!-- سيتم ملء المنتجات ديناميكياً -->
-            </div>
-        </section>
-
-        <!-- قسم تأكيد الطلب -->
-        <section id="confirmation-section" class="section hidden">
-            <div class="thank-you">
-                <i class="fas fa-check-circle"></i>
-                <h2>شكراً لك!</h2>
-                <p>تم استلام طلبك بنجاح وسيتم تحضيره قريباً</p>
-                <p>رقم طلبك: <span id="order-number">ORD-12345</span></p>
-                <button class="btn btn-secondary" onclick="newOrder()">طلب جديد</button>
-            </div>
-        </section>
-    </div>
-
-    <!-- سلة التسوق -->
-    <div class="cart" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <div class="cart-badge" id="cart-count">0</div>
-    </div>
-    
-    <div class="cart-panel" id="cart-panel">
-        <h2>سلة الطلبات</h2>
-        <div id="cart-items">
-            <!-- سيتم ملء العناصر ديناميكياً -->
+            <button class="generate-btn" onclick="generateQR()">إنشاء رمز QR</button>
         </div>
-        <div class="cart-total">
-            <span>المجموع:</span>
-            <span id="cart-total">0.00</span> <span>درهم</span>
+        
+        <div class="preview" id="preview">
+            <h2>معاينة رمز QR</h2>
+            <div id="qrcode"></div>
+            <div class="actions">
+                <button class="action-btn btn-download" onclick="downloadQR()">تحميل الرمز</button>
+                <button class="action-btn btn-print" onclick="window.print()">طباعة الاستيكر</button>
+            </div>
         </div>
-        <button class="btn btn-success order-btn" onclick="placeOrder()">تأكيد الطلب</button>
-    </div>
-
-    <footer>
-        <div class="container">
+        
+        <div class="sticker-sample">
+            <h2>نماذج لاستيكرات الطاولات</h2>
+            <div class="samples-container">
+                <div class="sticker">
+                    <h4>طاولة رقم 1</h4>
+                    <div id="sample1"></div>
+                    <p>مسح للطلب</p>
+                </div>
+                <div class="sticker">
+                    <h4>طاولة رقم 2</h4>
+                    <div id="sample2"></div>
+                    <p>مسح للطلب</p>
+                </div>
+                <div class="sticker">
+                    <h4>طاولة رقم 3</h4>
+                    <div id="sample3"></div>
+                    <p>مسح للطلب</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
             <p>© 2023 مطعمنا. جميع الحقوق محفوظة</p>
-            <p>تواصل معنا: info@mat3amna.com</p>
-        </div>
-    </footer>
+            <p>النطاق: https://amerpro1.github.io/amerpos/</p>
+        </footer>
+    </div>
 
     <script>
-        // تهيئة Supabase
-        const supabaseUrl = 'https://ulfasrzrtbfmtjyohzrp.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsZmFzcnpydGJmbXRqeW9oenJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1MTQyNzksImV4cCI6MjA2MzA5MDI3OX0.Et1bJV2KqGlVsuwYekUqWSOCay9Hr5DLfhVhTL4Nu1o';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
-        // حالة التطبيق
-        let currentTable = null;
-        let cart = [];
-        let products = [];
-        let categories = [];
-        
-        // عناصر DOM
-        const qrSection = document.getElementById('qr-section');
-        const menuSection = document.getElementById('menu-section');
-        const confirmationSection = document.getElementById('confirmation-section');
-        const productsContainer = document.getElementById('products-container');
-        const categoriesContainer = document.getElementById('categories-container');
-        const cartCount = document.getElementById('cart-count');
-        const cartPanel = document.getElementById('cart-panel');
-        const cartItems = document.getElementById('cart-items');
-        const cartTotal = document.getElementById('cart-total');
-        const currentTableElement = document.getElementById('current-table');
-        const loadingElement = document.getElementById('loading');
-        const connectionStatusElement = document.getElementById('connection-status');
-        
-        // اختبار الاتصال بقاعدة البيانات
-        async function testConnection() {
-            try {
-                // اختبار جلب التصنيفات
-                const { data: categories, error: catError } = await supabase
-                    .from('categories')
-                    .select('*')
-                    .limit(1);
-                
-                if (catError) {
-                    showConnectionStatus('خطأ في الاتصال بقاعدة البيانات: ' + catError.message, false);
-                    console.error('Error connecting to categories:', catError);
-                } else {
-                    showConnectionStatus('تم الاتصال بنجاح بقاعدة البيانات', true);
-                    console.log('Successfully connected to Supabase. Categories:', categories);
-                }
-                
-                // اختبار جلب عناصر القائمة
-                const { data: menuItems, error: menuError } = await supabase
-                    .from('menu_items')
-                    .select('*')
-                    .limit(1);
-                    
-                if (menuError) {
-                    console.error('Error connecting to menu_items:', menuError);
-                } else {
-                    console.log('Menu items:', menuItems);
-                }
-                
-            } catch (error) {
-                console.error('Connection test failed:', error);
-                showConnectionStatus('فشل اختبار الاتصال بقاعدة البيانات', false);
-            } finally {
-                // إخفاء شاشة التحميل بعد 2 ثانية
-                setTimeout(() => {
-                    loadingElement.style.display = 'none';
-                }, 2000);
-            }
-        }
-        
-        function showConnectionStatus(message, isSuccess) {
-            connectionStatusElement.textContent = message;
-            connectionStatusElement.className = isSuccess ? 'connection-status connection-success' : 'connection-status connection-error';
-            
-            // إخفاء الرسالة بعد 5 ثوان
-            setTimeout(() => {
-                connectionStatusElement.textContent = '';
-                connectionStatusElement.className = '';
-            }, 5000);
-        }
-        
-        // تهيئة قارئ QR code
-        const html5Qrcode = new Html5Qrcode("qr-reader");
-        
-        function startQRScanner() {
-            Html5Qrcode.getCameras().then(cameras => {
-                if (cameras && cameras.length) {
-                    html5Qrcode.start(
-                        cameras[0].id,
-                        {
-                            fps: 10,
-                            qrbox: { width: 250, height: 250 }
-                        },
-                        onQRCodeScanned,
-                        () => {} // verbose
-                    ).catch(err => {
-                        console.error("Failed to start QR scanner", err);
-                    });
-                }
-            }).catch(err => {
-                console.error("Cannot get cameras", err);
-                alert('لا يمكن الوصول إلى الكاميرا. يرجى التأكد من السماح بالوصول إلى الكاميرا.');
-            });
-        }
-        
-        function onQRCodeScanned(decodedText, decodedResult) {
-            console.log(`QR code scanned: ${decodedText}`);
-            // افترض أن QR code يحتوي على ID الطاولة مباشرة
-            const tableId = decodedText;
-            if (tableId) {
-                setTable(tableId);
-                html5Qrcode.stop();
-            }
-        }
-        
-        function setTableManual() {
-            const tableId = document.getElementById('manual-table-input').value;
-            if (tableId) {
-                setTable(tableId);
-            } else {
-                alert('يرجى إدخال رقم الطاولة');
-            }
-        }
-        
-        async function setTable(tableId) {
-            try {
-                // التحقق من وجود الطاولة في قاعدة البيانات
-                const { data: table, error: tableError } = await supabase
-                    .from('tables')
-                    .select('*')
-                    .eq('number', tableId)
-                    .single();
-                
-                if (tableError) {
-                    if (tableError.code === 'PGRST116') {
-                        alert('رقم الطاولة غير صحيح. يرجى المحاولة مرة أخرى.');
-                    } else {
-                        throw tableError;
-                    }
-                    return;
-                }
-                
-                // تحديث حالة الطاولة إلى مشغولة
-                const { error: updateError } = await supabase
-                    .from('tables')
-                    .update({ 
-                        status: 'occupied',
-                        occupied_at: new Date().toISOString()
-                    })
-                    .eq('number', tableId);
-                
-                if (updateError) throw updateError;
-                
-                currentTable = tableId;
-                currentTableElement.textContent = `طاولة ${tableId}`;
-                
-                // إخفاء قسم QR وإظهار قسم القائمة
-                qrSection.classList.add('hidden');
-                menuSection.classList.remove('hidden');
-                
-                // تحميل القائمة والتصنيفات
-                await loadCategories();
-                await loadMenu();
-            } catch (error) {
-                console.error('Error setting table:', error);
-                alert('حدث خطأ في تحديد الطاولة. يرجى المحاولة مرة أخرى.');
-            }
-        }
-        
-        async function loadCategories() {
-            try {
-                // جلب التصنيفات من Supabase
-                const { data, error } = await supabase
-                    .from('categories')
-                    .select('*')
-                    .order('id', { ascending: true });
-                
-                if (error) throw error;
-                
-                categories = data;
-                renderCategories();
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                // في حالة الخطأ، نعرض تصنيفات افتراضية
-                categories = [
-                    { id: 1, name: 'الوجبات الرئيسية' },
-                    { id: 2, name: 'المقبلات' },
-                    { id: 3, name: 'المشروبات' },
-                    { id: 4, name: 'الحلويات' }
-                ];
-                renderCategories();
-            }
-        }
-        
-        function renderCategories() {
-            categoriesContainer.innerHTML = '';
-            
-            // زر لعرض جميع المنتجات
-            const allButton = document.createElement('button');
-            allButton.className = 'category-btn active';
-            allButton.textContent = 'الكل';
-            allButton.onclick = () => filterProducts('all');
-            categoriesContainer.appendChild(allButton);
-            
-            // أزرار التصنيفات
-            categories.forEach(category => {
-                const button = document.createElement('button');
-                button.className = 'category-btn';
-                button.textContent = category.name;
-                button.onclick = () => filterProducts(category.id);
-                categoriesContainer.appendChild(button);
-            });
-        }
-        
-        async function loadMenu() {
-            try {
-                // جلب البيانات من Supabase
-                const { data, error } = await supabase
-                    .from('menu_items')
-                    .select('*')
-                    .order('category_id', { ascending: true });
-                
-                if (error) throw error;
-                
-                products = data;
-                renderProducts('all');
-            } catch (error) {
-                console.error('Error loading menu:', error);
-                alert('حدث خطأ في تحميل القائمة. يرجى المحاولة مرة أخرى.');
-                
-                // بيانات افتراضية للاختبار
-                products = [
-                    { id: 1, name: 'برجر لحم', descrip_item: 'برجر لحم مع الجبن والخضار', price: 25, category_id: 1, image_url: '' },
-                    { id: 2, name: 'برجر دجاج', descrip_item: 'برجر دجاج مع الخضار', price: 20, category_id: 1, image_url: '' },
-                    { id: 3, name: 'سلطة سيزر', descrip_item: 'سلطة طازجة مع صلصة سيزر', price: 15, category_id: 2, image_url: '' },
-                    { id: 4, name: 'كولا', descrip_item: 'مشروب غازي', price: 5, category_id: 3, image_url: '' },
-                    { id: 5, name: 'تشيز كيك', descrip_item: 'حلوى التشيز كيك اللذيذة', price: 12, category_id: 4, image_url: '' }
-                ];
-                renderProducts('all');
-            }
-        }
-        
-        function renderProducts(categoryId) {
-            productsContainer.innerHTML = '';
-            
-            const filteredProducts = categoryId === 'all' 
-                ? products 
-                : products.filter(p => p.category_id === categoryId);
-            
-            if (filteredProducts.length === 0) {
-                productsContainer.innerHTML = '<p>لا توجد منتجات في هذا التصنيف</p>';
-                return;
-            }
-            
-            filteredProducts.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                
-                productCard.innerHTML = `
-                    <div class="product-image" style="background-image: url('${product.image_url || 'https://via.placeholder.com/300x200?text=No+Image'}')"></div>
-                    <div class="product-info">
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-desc">${product.descrip_item || 'لا يوجد وصف'}</div>
-                        <div class="product-price">${product.price} درهم</div>
-                        <div class="product-actions">
-                            <div class="quantity-control">
-                                <button class="quantity-btn" onclick="decreaseQuantity(${product.id})">-</button>
-                                <span id="quantity-${product.id}">0</span>
-                                <button class="quantity-btn" onclick="increaseQuantity(${product.id})">+</button>
-                            </div>
-                            <button class="btn" onclick="addToCart(${product.id})">إضافة</button>
-                        </div>
-                    </div>
-                `;
-                
-                productsContainer.appendChild(productCard);
-            });
-        }
-        
-        function filterProducts(categoryId) {
-            // تحديث أزرار التصنيف النشطة
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // عرض المنتجات حسب التصنيف
-            renderProducts(categoryId);
-        }
-        
-        function increaseQuantity(productId) {
-            const quantityElement = document.getElementById(`quantity-${productId}`);
-            let quantity = parseInt(quantityElement.textContent);
-            quantityElement.textContent = quantity + 1;
-        }
-        
-        function decreaseQuantity(productId) {
-            const quantityElement = document.getElementById(`quantity-${productId}`);
-            let quantity = parseInt(quantityElement.textContent);
-            if (quantity > 0) {
-                quantityElement.textContent = quantity - 1;
-            }
-        }
-        
-        function addToCart(productId) {
-            const quantityElement = document.getElementById(`quantity-${productId}`);
-            const quantity = parseInt(quantityElement.textContent);
-            
-            if (quantity === 0) {
-                alert('يرجى تحديد الكمية أولاً');
-                return;
-            }
-            
-            const product = products.find(p => p.id === productId);
-            const existingItem = cart.find(item => item.product.id === productId);
-            
-            if (existingItem) {
-                existingItem.quantity += quantity;
-            } else {
-                cart.push({
-                    product: product,
-                    quantity: quantity
-                });
-            }
-            
-            // إعادة تعيين العداد
-            quantityElement.textContent = '0';
-            
-            // تحديث سلة التسوق
-            updateCart();
-            
-            // إظهار تأكيد سريع
-            alert(`تم إضافة ${quantity} من ${product.name} إلى السلة`);
-        }
-        
-        function updateCart() {
-            // تحديث عدد العناصر
-            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-            cartCount.textContent = totalItems;
-            
-            // تحديث قائمة العناصر في السلة
-            cartItems.innerHTML = '';
-            let total = 0;
-            
-            cart.forEach((item, index) => {
-                const itemTotal = item.product.price * item.quantity;
-                total += itemTotal;
-                
-                const cartItem = document.createElement('div');
-                cartItem.className = 'cart-item';
-                cartItem.innerHTML = `
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.product.name}</div>
-                        <div class="cart-item-price">${item.product.price} × ${item.quantity} = ${itemTotal} درهم</div>
-                    </div>
-                    <button class="btn btn-danger" onclick="removeFromCart(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                
-                cartItems.appendChild(cartItem);
-            });
-            
-            // تحديث المجموع الكلي
-            cartTotal.textContent = total.toFixed(2);
-        }
-        
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCart();
-        }
-        
-        function toggleCart() {
-            cartPanel.classList.toggle('show');
-        }
-        
-        async function placeOrder() {
-            if (cart.length === 0) {
-                alert('سلة التسوق فارغة. يرجى إضافة بعض العناصر أولاً.');
-                return;
-            }
-            
-            try {
-                // حساب المبلغ الإجمالي
-                const totalAmount = cart.reduce((total, item) => {
-                    return total + (item.product.price * item.quantity);
-                }, 0);
-                
-                // تحضير عناصر الطلب بتنسيق JSON
-                const orderItems = cart.map(item => ({
-                    id: item.product.id,
-                    name: item.product.name,
-                    price: item.product.price,
-                    quantity: item.quantity,
-                    total: item.product.price * item.quantity
-                }));
-                
-                // إدخال الطلب في قاعدة البيانات
-                const { data: order, error: orderError } = await supabase
-                    .from('orders')
-                    .insert([
-                        { 
-                            table_number: currentTable,
-                            total: totalAmount,
-                            items: orderItems,
-                            status: 'pending',
-                            payment_status: 'unpaid',
-                            order_type: 'dine_in'
-                        }
-                    ])
-                    .select();
-                
-                if (orderError) throw orderError;
-                
-                const orderId = order[0].id;
-                
-                // إظهار تأكيد الطلب
-                document.getElementById('order-number').textContent = `ORD-${orderId}`;
-                menuSection.classList.add('hidden');
-                confirmationSection.classList.remove('hidden');
-                cartPanel.classList.remove('show');
-                
-                // تفريغ السلة
-                cart = [];
-                updateCart();
-                
-            } catch (error) {
-                console.error('Error placing order:', error);
-                alert('حدث خطأ في تقديم الطلب. يرجى المحاولة مرة أخرى.');
-            }
-        }
-        
-        function newOrder() {
-            confirmationSection.classList.add('hidden');
-            qrSection.classList.remove('hidden');
-            currentTable = null;
-            startQRScanner();
-        }
-        
-        // بدء المسح عند تحميل الصفحة
+        // إنشاء نماذج لرموز QR عند تحميل الصفحة
         window.onload = function() {
-            testConnection();
-            startQRScanner();
+            // إنشاء نماذج لرموز QR للعرض
+            new QRCode(document.getElementById("sample1"), {
+                text: "https://amerpro1.github.io/amerpos/?table=1",
+                width: 120,
+                height: 120
+            });
+            
+            new QRCode(document.getElementById("sample2"), {
+                text: "https://amerpro1.github.io/amerpos/?table=2",
+                width: 120,
+                height: 120
+            });
+            
+            new QRCode(document.getElementById("sample3"), {
+                text: "https://amerpro1.github.io/amerpos/?table=3",
+                width: 120,
+                height: 120
+            });
         };
+        
+        // دالة إنشاء رمز QR للطاولة
+        function generateQR() {
+            const tableNumber = document.getElementById('tableNumber').value;
+            
+            if (!tableNumber) {
+                alert('يرجى إدخال رقم الطاولة أولاً');
+                return;
+            }
+            
+            // مسح أي رمز سابق
+            document.getElementById('qrcode').innerHTML = '';
+            
+            // إنشاء الرابط باستخدام النطاق المحدد
+            const url = `https://amerpro1.github.io/amerpos/?table=${tableNumber}`;
+            
+            // إنشاء رمز QR
+            new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 200,
+                height: 200
+            });
+            
+            // إضافة نص تحت الرمز
+            const label = document.createElement('p');
+            label.innerHTML = `<strong>طاولة رقم ${tableNumber}</strong> - مسح للطلب`;
+            label.style.marginTop = '15px';
+            label.style.fontSize = '18px';
+            label.style.color = '#4e54c8';
+            document.getElementById('qrcode').appendChild(label);
+            
+            // إظهار قسم المعاينة
+            document.getElementById('preview').style.display = 'block';
+            
+            // التمرير إلى قسم المعاينة
+            document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // دالة تحميل رمز QR كصورة
+        function downloadQR() {
+            const tableNumber = document.getElementById('tableNumber').value;
+            
+            if (!tableNumber || document.getElementById('qrcode').innerHTML === '') {
+                alert('يرجى إنشاء رمز QR أولاً');
+                return;
+            }
+            
+            const canvas = document.querySelector('#qrcode canvas');
+            const url = canvas.toDataURL('image/png');
+            
+            const link = document.createElement('a');
+            link.download = `qrcode-table-${tableNumber}.png`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
