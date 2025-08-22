@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توجيه إلى التطبيق - AmerPOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #FF6B00 0%, #FFA200 50%, #FF6B00 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FFFFFF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .error {
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .btn {
+            background-color: #FFFFFF;
+            color: #FF6B00;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: 'Tajawal', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>جاري التوجيه إلى التطبيق</h1>
+        <p>يتم الآن تحميل تطبيق المطعم...</p>
+        <p>إذا لم يتم التوجيه تلقائياً، اضغط على الزر أدناه</p>
+        
+        <div class="error" id="error-message"></div>
+        
+        <button class="btn" id="redirect-btn">الذهاب إلى التطبيق</button>
+    </div>
+
+    <script>
+        // دالة لاستخراج معاملات URL
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+
+            return params;
+        }
+        
+        // دالة للتوجيه إلى التطبيق
+        function redirectToApp() {
+            const params = getQueryParams();
+            const tableId = params.table;
+            
+            if (tableId) {
+                // حفظ بيانات الطاولة في localStorage
+                localStorage.setItem('selectedTableId', tableId);
+                localStorage.setItem('selectedTableNumber', tableId);
+            }
+            
+            // التوجيه إلى التطبيق الرئيسي
+            window.location.href = 'index.html';
+        }
+        
+        // إعداد معالجات الأحداث
+        document.addEventListener('DOMContentLoaded', function() {
+            // محاولة التوجيه تلقائياً بعد ثانية
+            setTimeout(redirectToApp, 1000);
+            
+            // إعداد الزر للتوجيه اليدوي
+            document.getElementById('redirect-btn').addEventListener('click', redirectToApp);
+        });
+    </script>
+</body>
+</html>
