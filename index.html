@@ -21,19 +21,22 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
+    // حالة تحميل التطبيق
+    let appLoaded = false;
+    
     // دالة للاتصال بتطبيق Flutter
-    function sendTableDataToFlutter(tableId, tableNumber) {
-      // الطريقة 1: استخدام Flutter JavaScript Channel
-      if (typeof flutterApp !== 'undefined' && flutterApp.postMessage) {
-        flutterApp.postMessage(JSON.stringify({
+    window.sendTableDataToFlutter = function(tableId, tableNumber) {
+      // إذا كان التطبيق محمل، أرسل البيانات مباشرة
+      if (appLoaded && window.flutterApp && window.flutterApp.postMessage) {
+        window.flutterApp.postMessage(JSON.stringify({
           type: 'tableData',
           tableId: tableId,
           tableNumber: tableNumber
         }));
         return true;
       }
-
-      // الطريقة 2: استخدام localStorage
+      
+      // إذا لم يكن محمل بعد، احفظ البيانات في localStorage
       try {
         localStorage.setItem('selectedTableId', tableId);
         localStorage.setItem('selectedTableNumber', tableNumber);
@@ -42,7 +45,7 @@
         console.error('Error saving to localStorage:', e);
         return false;
       }
-    }
+    };
 
     // عند تحميل الصفحة، تحقق من وجود معاملات URL
     window.addEventListener('load', function() {
@@ -51,15 +54,7 @@
 
       if (tableId) {
         console.log('Table ID from URL:', tableId);
-
-        // إرسال بيانات الطاولة إلى Flutter
-        if (sendTableDataToFlutter(tableId, tableId)) {
-          console.log('Table data sent to Flutter');
-        } else {
-          console.error('Failed to send table data to Flutter');
-        }
-
-        // إعادة توجيه إلى الصفحة الرئيسية بدون معاملات URL
+        window.sendTableDataToFlutter(tableId, tableId);
         window.history.replaceState({}, document.title, window.location.pathname);
       }
       
@@ -69,13 +64,43 @@
       
       if (savedTableId && savedTableNumber) {
         console.log('Found table data in localStorage:', savedTableId, savedTableNumber);
-        if (typeof flutterApp !== 'undefined' && flutterApp.postMessage) {
-          flutterApp.postMessage(JSON.stringify({
-            type: 'tableData',
-            tableId: savedTableId,
-            tableNumber: savedTableNumber
-          }));
-        }
+        // البيانات ستُرسل عندما يصبح التطبيق جاهزاً
+      }
+      
+      // بدء تحميل تطبيق Flutter بعد تأخير بسيط
+      setTimeout(loadFlutterApp, 100);
+    });
+    
+    function loadFlutterApp() {
+      const script = document.createElement('script');
+      script.src = 'flutter_bootstrap.js';
+      script.async = true;
+      script.onload = function() {
+        console.log('Flutter bootstrap script loaded');
+      };
+      document.head.appendChild(script);
+    }
+    
+    // تعريف دالة استقبال الرسائل من Flutter
+    window.addEventListener('flutter-app-loaded', function() {
+      console.log('Flutter app is loaded');
+      appLoaded = true;
+      document.querySelector('.loading-container').style.display = 'none';
+      
+      // إرسال أي بيانات طاولة مخزنة
+      const savedTableId = localStorage.getItem('selectedTableId');
+      const savedTableNumber = localStorage.getItem('selectedTableNumber');
+      
+      if (savedTableId && savedTableNumber && window.flutterApp && window.flutterApp.postMessage) {
+        window.flutterApp.postMessage(JSON.stringify({
+          type: 'tableData',
+          tableId: savedTableId,
+          tableNumber: savedTableNumber
+        }));
+        
+        // مسح البيانات بعد إرسالها
+        localStorage.removeItem('selectedTableId');
+        localStorage.removeItem('selectedTableNumber');
       }
     });
   </script>
@@ -99,6 +124,7 @@
       background: rgba(0, 0, 0, 0.7);
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      max-width: 90%;
     }
     
     .spinner {
@@ -120,6 +146,38 @@
       margin: 0 0 1rem 0;
       font-size: 1.5rem;
     }
+    
+    .error {
+      display: none;
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .retry-btn {
+      background-color: #FFFFFF;
+      color: #FF6B00;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      font-family: 'Tajawal', sans-serif;
+    }
+    
+    @media (max-width: 600px) {
+      .loading-container {
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 1.3rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -127,8 +185,23 @@
     <div class="spinner"></div>
     <h1>نظام إدارة المطعم</h1>
     <p>جاري تحميل التطبيق...</p>
+    <div class="error" id="error-message"></div>
+    <button class="retry-btn" id="retry-btn" style="display: none;">إعادة المحاولة</button>
   </div>
   
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // التحقق من أن التطبيق قد تم تحميله خلال وقت معقول
+    setTimeout(function() {
+      if (!appLoaded) {
+        document.getElementById('error-message').textContent = 'يبدو أن هناك مشكلة في تحميل التطبيق. يرجى المحاولة مرة أخرى.';
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('retry-btn').style.display = 'block';
+      }
+    }, 10000); // 10 ثواني
+    
+    document.getElementById('retry-btn').addEventListener('click', function() {
+      window.location.reload();
+    });
+  </script>
 </body>
 </html>
