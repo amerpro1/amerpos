@@ -3,213 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ربط تطبيق Flutter مع النطاق - AmerPOS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>نظام إدارة المطعم - AmerPOS</title>
     <style>
-        * {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
+            text-align: center;
+            direction: rtl;
         }
-        
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        
         header {
-            text-align: center;
-            margin-bottom: 40px;
-            background: #2c3e50;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
         h1 {
+            margin: 0;
             font-size: 2.5rem;
-            margin-bottom: 15px;
         }
-        
-        h2 {
-            font-size: 1.8rem;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3498db;
+        .description {
+            font-size: 1.2rem;
+            margin: 1rem 0;
         }
-        
-        h3 {
-            font-size: 1.4rem;
-            color: #2980b9;
-            margin: 25px 0 15px;
-        }
-        
-        p {
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            line-height: 1.8;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .step-number {
+        .app-link {
             display: inline-block;
-            width: 40px;
-            height: 40px;
-            background: #3498db;
+            background-color: #4b6cb7;
             color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 40px;
-            margin-right: 15px;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
             font-weight: bold;
-        }
-        
-        .code-example {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
             margin: 20px 0;
-            overflow-x: auto;
-            font-family: monospace;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
-        .qr-simulator {
+        .app-link:hover {
+            background-color: #182848;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .features {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
-            margin: 40px 0;
-        }
-        
-        .qr-container {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-        
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            background: #f1f1f1;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            border: 2px dashed #3498db;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            color: #7f8c8d;
+            gap: 20px;
+            margin: 2rem 0;
         }
-        
-        .order-container {
-            flex: 2;
-            min-width: 300px;
+        .feature {
             background: white;
+            border-radius: 10px;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
-        
-        .table-input {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
+        .feature:hover {
+            transform: translateY(-5px);
         }
-        
-        input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
+        .feature h3 {
+            color: #4b6cb7;
+            margin-top: 0;
         }
-        
-        button {
-            background: #e67e22;
+        footer {
+            margin-top: 3rem;
+            padding: 1rem;
+            background-color: #182848;
             color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
+            border-radius: 10px;
         }
-        
-        button:hover {
-            background: #d35400;
-        }
-        
-        .order-summary {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #ecf0f1;
-        }
-        
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        .total {
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 2px solid #7f8c8d;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        
         @media (max-width: 768px) {
-            .qr-simulator {
+            .features {
                 flex-direction: column;
+                align-items: center;
             }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
+            .feature {
+                width: 80%;
             }
         }
     </style>
@@ -217,187 +95,39 @@
 <body>
     <div class="container">
         <header>
-            <h1>ربط تطبيق Flutter مع النطاق - AmerPOS</h1>
-            <p>دليل عملي لربط تطبيق Flutter مع النطاق https://amerpro1.github.io/amerpos/</p>
+            <h1>نظام إدارة المطعم AmerPOS</h1>
+            <p class="description">نظام متكامل لإدارة المطعم والطلبات والمخزون</p>
         </header>
-        
-        <div class="card">
-            <h2><span class="step-number">1</span> بناء تطبيق Flutter للويب</h2>
-            <p>لربط تطبيق Flutter مع النطاق، يجب أولاً بناء التطبيق للويب:</p>
-            
-            <div class="code-example">
-                # الانتقال إلى مجلد المشروع<br>
-                cd amerpos<br><br>
-                
-                # بناء تطبيق Flutter للويب<br>
-                flutter build web --release<br><br>
-                
-                # سيكون التطبيق جاهزًا في مجلد build/web
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2><span class="step-number">2</span> رفع الملفات إلى GitHub Pages</h2>
-            <p>بعد بناء التطبيق، يجب رفع محتويات مجلد build/web إلى مستودع GitHub:</p>
-            
-            <div class="code-example">
-                # الانتقال إلى مجلد البناء<br>
-                cd build/web<br><br>
-                
-                # تهيئة مستودع Git (إذا لم يكن موجودًا)<br>
-                git init<br>
-                git add .<br>
-                git commit -m "نشر تطبيق AmerPOS"<br><br>
-                
-                # إضافة المستودع البعيد<br>
-                git remote add origin https://github.com/amerpro1/amerpos.git<br><br>
-                
-                # رفع الملفات<br>
-                git push -f origin main:gh-pages
-            </div>
-            
-            <p>تأكد من تفعيل GitHub Pages في إعدادات المستودع واختيار فرع gh-pages كمصدر.</p>
-        </div>
-        
-        <div class="card">
-            <h2><span class="step-number">3</span> تهيئة تطبيق Flutter للويب</h2>
-            <p>يجب تعديل ملف web/index.html في مشروع Flutter لدعم النطاق:</p>
-            
-            <div class="code-example">
-                &lt;!-- إعداد base href للنطاق --&gt;<br>
-                &lt;base href="/amerpos/"&gt;<br><br>
-                
-                &lt;!-- إعداد عنوان الصفحة --&gt;<br>
-                &lt;title&gt;نظام المطعم - AmerPOS&lt;/title&gt;<br><br>
-                
-                &lt;!-- إعداد وصف الصفحة --&gt;<br>
-                &lt;meta name="description" content="نظام إدارة المطعم AmerPOS"&gt;
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2><span class="step-number">4</span> إعداد استقبال معاملات URL</h2>
-            <p>للاستفادة من معاملات URL مثل ?table=5، يجب إضافة هذا الكود إلى web/index.html:</p>
-            
-            <div class="code-example">
-                &lt;script&gt;<br>
-                &nbsp;&nbsp;// عند تحميل الصفحة، تحقق من وجود معاملات URL<br>
-                &nbsp;&nbsp;window.addEventListener('load', function() {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;const urlParams = new URLSearchParams(window.location.search);<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;const tableId = urlParams.get('table');<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;if (tableId) {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// تخزين رقم الطاولة في localStorage<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localStorage.setItem('selectedTableId', tableId);<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localStorage.setItem('selectedTableNumber', tableId);<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// إرسال بيانات الطاولة إلى Flutter عند تحميله<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.addEventListener('flutter-app-loaded', function() {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (window.flutterApp && window.flutterApp.postMessage) {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.flutterApp.postMessage(JSON.stringify({<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: 'tableData',<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tableId: tableId,<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tableNumber: tableId<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}));<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                &nbsp;&nbsp;});<br>
-                &lt;/script&gt;
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2><span class="step-number">5</span> إعداد قناة اتصال JavaScript في Flutter</h2>
-            <p>في تطبيق Flutter، يجب إضافة قناة اتصال JavaScript لاستقبال البيانات:</p>
-            
-            <div class="code-example">
-                // في دالة main في ملف main.dart<br>
-                import 'package:js/js.dart';<br><br>
-                
-                // تعريف دالة JavaScript يمكن استدعاؤها من Flutter<br>
-                @JS('window.sendTableDataToFlutter')<br>
-                external void setSendTableDataToFlutter(Function f);<br><br>
-                
-                // دالة لاستقبال بيانات الطاولة من JavaScript<br>
-                void receiveTableData(String tableId, String tableNumber) {<br>
-                &nbsp;&nbsp;// معالجة بيانات الطاولة هنا<br>
-                &nbsp;&nbsp;print('تم استقبال بيانات الطاولة: $tableId, $tableNumber');<br>
-                &nbsp;&nbsp;// يمكنك حفظ البيانات في حالة التطبيق أو Provider<br>
-                }<br><br>
-                
-                void main() {<br>
-                &nbsp;&nbsp;// تسجيل دالة الاستقبال في JavaScript<br>
-                &nbsp;&nbsp;setSendTableDataToFlutter(allowInterop(receiveTableData));<br>
-                &nbsp;&nbsp;<br>
-                &nbsp;&nbsp;runApp(MyApp());<br>
-                }
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2><span class="step-number">6</span> اختبار الربط</h2>
-            <p>بعد اكتمال الخطوات السابقة، يمكنك اختبار الربط عن طريق:</p>
-            
-            <ol>
-                <li>فتح المتصفح والتوجه إلى https://amerpro1.github.io/amerpos/</li>
-                <li>إضافة معامل table إلى الرابط: https://amerpro1.github.io/amerpos/?table=5</li>
-                <li>التحقق من ظهور بيانات الطاولة في التطبيق</li>
-            </ol>
-            
-            <p>يمكنك محاكاة الاختبار باستخدام الأدوات أدناه:</p>
-            
-            <div class="table-input">
-                <input type="number" id="test-table-number" placeholder="أدخل رقم الطاولة" value="5" min="1" max="20">
-                <button onclick="testTableLink()">اختبار الرابط</button>
-            </div>
-            
-            <div id="test-result"></div>
-        </div>
-    </div>
 
-    <script>
-        function testTableLink() {
-            const tableNumber = document.getElementById('test-table-number').value;
-            const testResult = document.getElementById('test-result');
-            
-            if (!tableNumber) {
-                testResult.innerHTML = '<p style="color: red;">يرجى إدخال رقم الطاولة</p>';
-                return;
-            }
-            
-            const testLink = `https://amerpro1.github.io/amerpos/?table=${tableNumber}`;
-            
-            testResult.innerHTML = `
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i> 
-                    <p>تم إنشاء الرابط بنجاح:</p>
-                    <p><a href="${testLink}" target="_blank">${testLink}</a></p>
-                    <p>انسخ هذا الرابط وضعه في متصفح للاختبار، أو انقر فوقه لفتحه في نافذة جديدة.</p>
-                </div>
-            `;
-        }
-        
-        // محاكاة معالجة معاملات URL
-        function getQueryParams() {
-            const params = {};
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            
-            for (const [key, value] of urlParams) {
-                params[key] = value;
-            }
-            
-            return params;
-        }
-        
-        // عند تحميل الصفحة، تحقق من وجود معاملات في URL
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = getQueryParams();
-            if (params.table) {
-                document.getElementById('test-table-number').value = params.table;
-            }
-        });
-    </script>
+        <div>
+            <h2>تطبيق إدارة المطعم الخاص بك جاهز</h2>
+            <p>انقر على الرابط أدناه للوصول إلى نظام إدارة المطعم</p>
+            <a href="https://amerpro1.github.io/amerpos/" class="app-link">الدخول إلى نظام AmerPOS</a>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>إدارة الطلبات</h3>
+                <p>تتبع وإدارة الطلبات بسهولة وبكفاءة عالية</p>
+            </div>
+            <div class="feature">
+                <h3>إدارة المخزون</h3>
+                <p>مراقبة المخزون وتلقيم التقارير التلقائية</p>
+            </div>
+            <div class="feature">
+                <h3>تقارير المبيعات</h3>
+                <p>احصل على تقارير مفصلة عن المبيعات والأرباح</p>
+            </div>
+            <div class="feature">
+                <h3>دعم متعدد اللغات</h3>
+                <p>يدعم النظام اللغتين العربية والإنجليزية</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 AmerPOS - نظام إدارة المطعم. جميع الحقوق محفوظة.</p>
+            <p>للدعم الفني: support@amerpos.com</p>
+        </footer>
+    </div>
 </body>
 </html>
