@@ -630,7 +630,7 @@
             <h2>كيف تفضل تناول طلبك؟</h2>
             
             <div class="delivery-options">
-                <div class="option-card" id="dine-in-option" onclick="selectOption('dine-in')">
+                <div class="option-card" id="dine-in-option" onclick="selectOption('dine_in')">
                     <div class="option-header">
                         <div class="option-icon">
                             <i class="fas fa-store"></i>
@@ -758,7 +758,7 @@
         // تهيئة Supabase
         const supabaseUrl = 'https://ulfasrzrtbfmtjyohzrp.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsZmFzcnpydGJmbXRqeW9oenJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1MTQyNzksImV4cCI6MjA2MzA5MDI3OX0.Et1bJV2KqGlVsuwYekUqWSOCay9Hr5DLfhVhTL4Nu1o';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+               const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         // حالة التطبيق
         let currentTable = null;
@@ -797,7 +797,7 @@
             dineInOption.classList.remove('selected');
             deliveryOption.classList.remove('selected');
             
-            if (type === 'dine-in') {
+            if (type === 'dine_in') {
                 dineInOption.classList.add('selected');
                 dineInContent.classList.remove('hidden');
                 deliveryForm.classList.add('hidden');
@@ -810,7 +810,7 @@
         
         // المتابعة إلى القائمة
         function proceedToMenu() {
-            if (orderType === 'dine-in') {
+            if (orderType === 'dine_in') {
                 welcomeSection.classList.add('hidden');
                 qrSection.classList.remove('hidden');
             } else if (orderType === 'delivery') {
@@ -939,6 +939,7 @@
         
         async function setTable(tableId) {
             try {
+                // البحث في جدول tables باستخدام الحقل number
                 const { data: table, error: tableError } = await supabase
                     .from('tables')
                     .select('*')
@@ -954,6 +955,7 @@
                     return;
                 }
                 
+                // تحديث حالة الطاولة إلى occupied
                 const { error: updateError } = await supabase
                     .from('tables')
                     .update({ 
@@ -1140,7 +1142,7 @@
             cartItems.innerHTML = '';
             let total = 0;
             
-            cart.forEach((item, index) => {
+            cart.forEach((item, index) {
                 const itemTotal = item.product.price * item.quantity;
                 total += itemTotal;
                 
@@ -1191,22 +1193,37 @@
                 }));
                 
                 let orderData = {
-                    total_amount: totalAmount,
+                    total: totalAmount,
                     items: orderItems,
                     status: 'pending',
                     payment_status: 'unpaid',
-                    created_at: new Date().toISOString()
+                    payment_method: 'cash',
+                    order_type: orderType,
+                    pay_custom: 0,
+                    total_pay: totalAmount,
+                    delevry_fees: 0
                 };
                 
-                if (orderType === 'dine-in') {
-                    orderData.order_type = 'dine_in';
+                if (orderType === 'dine_in') {
                     orderData.table_number = currentTable;
+                    
+                    // البحث عن id الطاولة بناءً على رقمها
+                    const { data: tableData, error: tableError } = await supabase
+                        .from('tables')
+                        .select('id')
+                        .eq('number', currentTable)
+                        .single();
+                        
+                    if (!tableError && tableData) {
+                        orderData.table_id = tableData.id;
+                    }
                 } else if (orderType === 'delivery') {
-                    orderData.order_type = 'delivery';
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
-                    orderData.notes = customerInfo.address;
+                    orderData.delivery_address = customerInfo.address;
                     orderData.notes = customerInfo.notes || '';
+                    orderData.delevry_fees = 5; // رسوم التوصيل
+                    orderData.total_pay = totalAmount + 5;
                 }
                 
                 const { data: order, error: orderError } = await supabase
