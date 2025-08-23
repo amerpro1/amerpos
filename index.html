@@ -195,7 +195,7 @@
         
         .delivery-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
         }
@@ -224,30 +224,31 @@
         .option-header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 1.5rem;
+            padding: 1.2rem;
         }
         
         .option-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
         }
         
         .option-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
         }
         
         .option-body {
-            padding: 1.5rem;
+            padding: 1.2rem;
         }
         
         .option-description {
             color: #666;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
         }
         
-        .delivery-form {
+        .delivery-form, .pickup-form {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
@@ -266,7 +267,7 @@
             color: var(--dark);
         }
         
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 0.8rem 1rem;
             border: 1px solid #ddd;
@@ -274,7 +275,7 @@
             font-size: 1rem;
         }
         
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.2);
@@ -684,6 +685,10 @@
         
         /* تحسينات للشاشات الصغيرة */
         @media (max-width: 576px) {
+            .delivery-options {
+                grid-template-columns: 1fr;
+            }
+            
             .payment-options {
                 grid-template-columns: 1fr;
             }
@@ -781,6 +786,19 @@
                         <button class="btn">إدخال العنوان</button>
                     </div>
                 </div>
+                
+                <div class="option-card" id="pickup-option" onclick="selectOption('pickup')">
+                    <div class="option-header">
+                        <div class="option-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="option-title">استلام من المطعم</h3>
+                    </div>
+                    <div class="option-body">
+                        <p class="option-description">اطلب واستلم طلبك بنفسك من المطعم في الوقت المناسب لك</p>
+                        <button class="btn">إدخال المعلومات</button>
+                    </div>
+                </div>
             </div>
             
             <div id="dine-in-content" class="hidden">
@@ -804,6 +822,27 @@
                 <div class="form-group">
                     <label class="form-label">ملاحظات (اختياري)</label>
                     <textarea class="form-textarea" id="customer-notes" placeholder="أي ملاحظات إضافية حول الطلب أو العنوان"></textarea>
+                </div>
+                <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
+            </div>
+            
+            <div id="pickup-form" class="pickup-form hidden">
+                <h2>معلومات الاستلام</h2>
+                <div class="form-group">
+                    <label class="form-label">الاسم الكامل *</label>
+                    <input type="text" class="form-input" id="pickup-name" placeholder="أدخل اسمك الكامل" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رقم الهاتف *</label>
+                    <input type="tel" class="form-input" id="pickup-phone" placeholder="أدخل رقم هاتفك" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">وقت الاستلام المتوقع *</label>
+                    <input type="time" class="form-input" id="pickup-time" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ملاحظات (اختياري)</label>
+                    <textarea class="form-textarea" id="pickup-notes" placeholder="أي ملاحظات إضافية حول الطلب"></textarea>
                 </div>
                 <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
             </div>
@@ -831,6 +870,11 @@
             <div id="delivery-info" class="table-info hidden">
                 <p>طلب التوصيل إلى:</p>
                 <div class="table-number" id="delivery-address">العنوان</div>
+            </div>
+            
+            <div id="pickup-info" class="table-info hidden">
+                <p>طلب الاستلام باسم:</p>
+                <div class="table-number" id="pickup-customer">الاسم</div>
             </div>
             
             <h2>قائمة الطعام</h2>
@@ -872,9 +916,12 @@
                 </div>
             </div>
             
-            <div class="payment-status">
-                <span>حالة الدفع:</span>
-                <span class="status-badge status-unpaid" id="payment-status-badge">غير مدفوع</span>
+            <div class="form-group">
+                <label class="form-label">حالة الدفع *</label>
+                <select class="form-select" id="payment-status">
+                    <option value="unpaid">غير مدفوع</option>
+                    <option value="paid">مدفوع</option>
+                </select>
             </div>
             
             <div class="form-group amount-paid">
@@ -950,11 +997,15 @@
         const confirmationSection = document.getElementById('confirmation-section');
         const dineInOption = document.getElementById('dine-in-option');
         const deliveryOption = document.getElementById('delivery-option');
+        const pickupOption = document.getElementById('pickup-option');
         const dineInContent = document.getElementById('dine-in-content');
         const deliveryForm = document.getElementById('delivery-form');
+        const pickupForm = document.getElementById('pickup-form');
         const tableInfo = document.getElementById('table-info');
         const deliveryInfo = document.getElementById('delivery-info');
+        const pickupInfo = document.getElementById('pickup-info');
         const deliveryAddress = document.getElementById('delivery-address');
+        const pickupCustomer = document.getElementById('pickup-customer');
         const productsContainer = document.getElementById('products-container');
         const categoriesContainer = document.getElementById('categories-container');
         const cartCount = document.getElementById('cart-count');
@@ -966,7 +1017,7 @@
         const connectionStatusElement = document.getElementById('connection-status');
         const orderSummaryItems = document.getElementById('order-summary-items');
         const summaryTotalAmount = document.getElementById('summary-total-amount');
-        const paymentStatusBadge = document.getElementById('payment-status-badge');
+        const paymentStatusSelect = document.getElementById('payment-status');
         const amountPaidInput = document.getElementById('amount-paid');
         const cashOption = document.getElementById('cash-option');
         const cardOption = document.getElementById('card-option');
@@ -977,15 +1028,23 @@
             
             dineInOption.classList.remove('selected');
             deliveryOption.classList.remove('selected');
+            pickupOption.classList.remove('selected');
             
             if (type === 'dine-in') {
                 dineInOption.classList.add('selected');
                 dineInContent.classList.remove('hidden');
                 deliveryForm.classList.add('hidden');
+                pickupForm.classList.add('hidden');
             } else if (type === 'delivery') {
                 deliveryOption.classList.add('selected');
                 dineInContent.classList.add('hidden');
                 deliveryForm.classList.remove('hidden');
+                pickupForm.classList.add('hidden');
+            } else if (type === 'pickup') {
+                pickupOption.classList.add('selected');
+                dineInContent.classList.add('hidden');
+                deliveryForm.classList.add('hidden');
+                pickupForm.classList.remove('hidden');
             }
         }
         
@@ -1011,7 +1070,30 @@
                 menuSection.classList.remove('hidden');
                 tableInfo.classList.add('hidden');
                 deliveryInfo.classList.remove('hidden');
+                pickupInfo.classList.add('hidden');
                 deliveryAddress.textContent = address;
+                
+                loadCategories();
+                loadMenu();
+            } else if (orderType === 'pickup') {
+                const name = document.getElementById('pickup-name').value;
+                const phone = document.getElementById('pickup-phone').value;
+                const time = document.getElementById('pickup-time').value;
+                const notes = document.getElementById('pickup-notes').value;
+                
+                if (!name || !phone || !time) {
+                    alert('يرجى ملء جميع حقول معلومات الاستلام الإلزامية');
+                    return;
+                }
+                
+                customerInfo = { name, phone, time, notes };
+                
+                welcomeSection.classList.add('hidden');
+                menuSection.classList.remove('hidden');
+                tableInfo.classList.add('hidden');
+                deliveryInfo.classList.add('hidden');
+                pickupInfo.classList.remove('hidden');
+                pickupCustomer.textContent = name;
                 
                 loadCategories();
                 loadMenu();
@@ -1152,6 +1234,7 @@
                 menuSection.classList.remove('hidden');
                 tableInfo.classList.remove('hidden');
                 deliveryInfo.classList.add('hidden');
+                pickupInfo.classList.add('hidden');
                 
                 await loadCategories();
                 await loadMenu();
@@ -1430,18 +1513,17 @@
         async function confirmPayment() {
             const paidAmount = parseFloat(amountPaidInput.value);
             const totalAmount = parseFloat(summaryTotalAmount.textContent);
+            const paymentStatus = paymentStatusSelect.value;
             
             if (isNaN(paidAmount) || paidAmount <= 0) {
                 alert('يرجى إدخال مبلغ مدفوع صحيح');
                 return;
             }
             
-            if (paidAmount < totalAmount) {
+            if (paymentStatus === 'paid' && paidAmount < totalAmount) {
                 alert('المبلغ المدفوع أقل من المبلغ الإجمالي. يرجى دفع المبلغ الكامل.');
                 return;
             }
-            
-            paymentStatus = paidAmount >= totalAmount ? 'paid' : 'unpaid';
             
             try {
                 const totalAmount = cart.reduce((total, item) => {
@@ -1492,6 +1574,11 @@
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
                     orderData.notes = customerInfo.address;
+                } else if (orderType === 'pickup') {
+                    orderData.order_type = 'pickup';
+                    orderData.customer_name = customerInfo.name;
+                    orderData.customer_phone = customerInfo.phone;
+                    orderData.notes = `وقت الاستلام: ${customerInfo.time}. ${customerInfo.notes || ''}`;
                 }
                 
                 const { data: order, error: orderError } = await supabase
