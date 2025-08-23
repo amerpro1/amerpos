@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* نفس الأنماط السابقة - لم تتغير */
         :root {
             --primary: #4e54c8;
             --primary-dark: #3f43a5;
@@ -17,6 +16,8 @@
             --dark: #343a40;
             --success: #28a745;
             --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
         }
         
         * {
@@ -123,6 +124,11 @@
         
         .btn-danger {
             background: var(--danger);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
         }
         
         .btn-large {
@@ -572,6 +578,125 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        
+        /* شاشة الدفع الجديدة */
+        .payment-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .order-summary {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid #ddd;
+        }
+        
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .payment-option {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-option.selected {
+            border-color: var(--primary);
+            background-color: #f0f7ff;
+        }
+        
+        .payment-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .payment-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+        
+        .status-unpaid {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        
+        .status-paid {
+            background-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .amount-paid {
+            margin-bottom: 1.5rem;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .payment-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 576px) {
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-actions {
+                flex-direction: column;
+            }
+            
+            .back-btn {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -718,6 +843,51 @@
             </div>
         </section>
 
+        <!-- قسم الدفع الجديد -->
+        <section id="payment-section" class="section hidden">
+            <h2>الدفع وتأكيد الطلب</h2>
+            
+            <div class="order-summary">
+                <h3>ملخص الطلب</h3>
+                <div id="order-summary-items">
+                    <!-- سيتم ملء العناصر ديناميكياً -->
+                </div>
+                <div class="summary-total">
+                    <span>المجموع الكلي:</span>
+                    <span id="summary-total-amount">0.00 د.ع</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">طريقة الدفع *</label>
+                <div class="payment-options">
+                    <div class="payment-option" id="cash-option" onclick="selectPaymentMethod('cash')">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <p>نقدي</p>
+                    </div>
+                    <div class="payment-option" id="card-option" onclick="selectPaymentMethod('card')">
+                        <i class="fas fa-credit-card"></i>
+                        <p>بطاقة ائتمان</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payment-status">
+                <span>حالة الدفع:</span>
+                <span class="status-badge status-unpaid" id="payment-status-badge">غير مدفوع</span>
+            </div>
+            
+            <div class="form-group amount-paid">
+                <label class="form-label">المبلغ المدفوع *</label>
+                <input type="number" class="form-input" id="amount-paid" placeholder="أدخل المبلغ المدفوع" required>
+            </div>
+            
+            <div class="payment-actions">
+                <button class="btn back-btn" onclick="backToMenu()">العودة إلى القائمة</button>
+                <button class="btn btn-success" onclick="confirmPayment()">تأكيد الدفع وإكمال الطلب</button>
+            </div>
+        </section>
+
         <!-- قسم تأكيد الطلب -->
         <section id="confirmation-section" class="section hidden">
             <div class="thank-you">
@@ -745,7 +915,7 @@
             <span>المجموع:</span>
             <span id="cart-total">0.00</span> <span>د.ع</span>
         </div>
-        <button class="btn btn-success order-btn" onclick="placeOrder()">تأكيد الطلب</button>
+        <button class="btn btn-success order-btn" onclick="proceedToPayment()">المتابعة إلى الدفع</button>
     </div>
 
     <footer>
@@ -768,11 +938,15 @@
         let cart = [];
         let products = [];
         let categories = [];
+        let paymentMethod = 'cash';
+        let paymentStatus = 'unpaid';
+        let amountPaid = 0;
         
         // عناصر DOM
         const welcomeSection = document.getElementById('welcome-section');
         const qrSection = document.getElementById('qr-section');
         const menuSection = document.getElementById('menu-section');
+        const paymentSection = document.getElementById('payment-section');
         const confirmationSection = document.getElementById('confirmation-section');
         const dineInOption = document.getElementById('dine-in-option');
         const deliveryOption = document.getElementById('delivery-option');
@@ -790,6 +964,12 @@
         const currentTableElement = document.getElementById('current-table');
         const loadingElement = document.getElementById('loading');
         const connectionStatusElement = document.getElementById('connection-status');
+        const orderSummaryItems = document.getElementById('order-summary-items');
+        const summaryTotalAmount = document.getElementById('summary-total-amount');
+        const paymentStatusBadge = document.getElementById('payment-status-badge');
+        const amountPaidInput = document.getElementById('amount-paid');
+        const cashOption = document.getElementById('cash-option');
+        const cardOption = document.getElementById('card-option');
         
         // اختيار نوع الطلب
         function selectOption(type) {
@@ -1172,16 +1352,105 @@
             cartPanel.classList.toggle('show');
         }
         
-        async function placeOrder() {
+        // المتابعة إلى شاشة الدفع
+        function proceedToPayment() {
             if (cart.length === 0) {
                 alert('سلة التسوق فارغة. يرجى إضافة بعض العناصر أولاً.');
                 return;
             }
             
+            // تحديث ملخص الطلب
+            updateOrderSummary();
+            
+            // الانتقال إلى شاشة الدفع
+            menuSection.classList.add('hidden');
+            paymentSection.classList.remove('hidden');
+            cartPanel.classList.remove('show');
+        }
+        
+        // تحديث ملخص الطلب
+        function updateOrderSummary() {
+            orderSummaryItems.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.product.price * item.quantity;
+                total += itemTotal;
+                
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <span>${item.product.name} (${item.quantity})</span>
+                    <span>${itemTotal.toFixed(2)} د.ع</span>
+                `;
+                
+                orderSummaryItems.appendChild(summaryItem);
+            });
+            
+            // إضافة رسوم التوصيل إذا كان طلب توصيل
+            if (orderType === 'delivery') {
+                const deliveryFees = total * 0.05;
+                const deliveryItem = document.createElement('div');
+                deliveryItem.className = 'summary-item';
+                deliveryItem.innerHTML = `
+                    <span>رسوم التوصيل (5%)</span>
+                    <span>${deliveryFees.toFixed(2)} د.ع</span>
+                `;
+                orderSummaryItems.appendChild(deliveryItem);
+                total += deliveryFees;
+            }
+            
+            summaryTotalAmount.textContent = `${total.toFixed(2)} د.ع`;
+            
+            // تعيين المبلغ المدفوع الافتراضي
+            amountPaidInput.value = total.toFixed(2);
+        }
+        
+        // اختيار طريقة الدفع
+        function selectPaymentMethod(method) {
+            paymentMethod = method;
+            
+            cashOption.classList.remove('selected');
+            cardOption.classList.remove('selected');
+            
+            if (method === 'cash') {
+                cashOption.classList.add('selected');
+            } else if (method === 'card') {
+                cardOption.classList.add('selected');
+            }
+        }
+        
+        // العودة إلى القائمة
+        function backToMenu() {
+            paymentSection.classList.add('hidden');
+            menuSection.classList.remove('hidden');
+        }
+        
+        // تأكيد الدفع
+        async function confirmPayment() {
+            const paidAmount = parseFloat(amountPaidInput.value);
+            const totalAmount = parseFloat(summaryTotalAmount.textContent);
+            
+            if (isNaN(paidAmount) || paidAmount <= 0) {
+                alert('يرجى إدخال مبلغ مدفوع صحيح');
+                return;
+            }
+            
+            if (paidAmount < totalAmount) {
+                alert('المبلغ المدفوع أقل من المبلغ الإجمالي. يرجى دفع المبلغ الكامل.');
+                return;
+            }
+            
+            paymentStatus = paidAmount >= totalAmount ? 'paid' : 'unpaid';
+            
             try {
                 const totalAmount = cart.reduce((total, item) => {
                     return total + (item.product.price * item.quantity);
                 }, 0);
+                
+                // حساب رسوم التوصيل (5% من المجموع للطلبات الخارجية)
+                const deliveryFees = orderType === 'delivery' ? totalAmount * 0.05 : 0;
+                const totalPay = totalAmount + deliveryFees;
                 
                 const orderItems = cart.map(item => ({
                     menu_item_id: item.product.id,
@@ -1191,18 +1460,15 @@
                     total: item.product.price * item.quantity
                 }));
                 
-                // حساب رسوم التوصيل (5% من المجموع للطلبات الخارجية)
-                const deliveryFees = orderType === 'delivery' ? totalAmount * 0.05 : 0;
-                
                 let orderData = {
                     total: totalAmount,
-                    total_pay: totalAmount + deliveryFees,
-                    pay_custom: 0,
+                    total_pay: totalPay,
+                    pay_custom: paidAmount,
                     delevry_fees: deliveryFees,
                     items: orderItems,
                     status: 'pending',
-                    payment_status: 'unpaid',
-                    payment_method: 'cash',
+                    payment_status: paymentStatus,
+                    payment_method: paymentMethod,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 };
@@ -1226,7 +1492,6 @@
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
                     orderData.notes = customerInfo.address;
-                   // orderData.notes = customerInfo.notes || '';
                 }
                 
                 const { data: order, error: orderError } = await supabase
@@ -1242,9 +1507,8 @@
                 const orderId = order[0].id;
                 
                 document.getElementById('order-number').textContent = `ORD-${orderId}`;
-                menuSection.classList.add('hidden');
+                paymentSection.classList.add('hidden');
                 confirmationSection.classList.remove('hidden');
-                cartPanel.classList.remove('show');
                 
                 cart = [];
                 updateCart();
@@ -1271,6 +1535,9 @@
             testConnection();
             startQRScanner();
             checkUrlForTableNumber();
+            
+            // تعيين طريقة الدفع الافتراضية
+            selectPaymentMethod('cash');
         };
     </script>
 </body>
