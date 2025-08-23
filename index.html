@@ -248,7 +248,7 @@
             font-size: 0.9rem;
         }
         
-        .delivery-form, .pickup-form {
+        .delivery-form, .takeaway-form {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
@@ -787,12 +787,12 @@
                     </div>
                 </div>
                 
-                <div class="option-card" id="pickup-option" onclick="selectOption('pickup')">
+                <div class="option-card" id="takeaway-option" onclick="selectOption('takeaway')">
                     <div class="option-header">
                         <div class="option-icon">
                             <i class="fas fa-utensils"></i>
                         </div>
-                        <h3 class="option-title">استلام من المطعم</h3>
+                        <h3 class="option-title">Takeaway</h3>
                     </div>
                     <div class="option-body">
                         <p class="option-description">اطلب واستلم طلبك بنفسك من المطعم في الوقت المناسب لك</p>
@@ -826,23 +826,23 @@
                 <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
             </div>
             
-            <div id="pickup-form" class="pickup-form hidden">
-                <h2>معلومات الاستلام</h2>
+            <div id="takeaway-form" class="takeaway-form hidden">
+                <h2>معلومات Takeaway</h2>
                 <div class="form-group">
                     <label class="form-label">الاسم الكامل *</label>
-                    <input type="text" class="form-input" id="pickup-name" placeholder="أدخل اسمك الكامل" required>
+                    <input type="text" class="form-input" id="takeaway-name" placeholder="أدخل اسمك الكامل" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">رقم الهاتف *</label>
-                    <input type="tel" class="form-input" id="pickup-phone" placeholder="أدخل رقم هاتفك" required>
+                    <input type="tel" class="form-input" id="takeaway-phone" placeholder="أدخل رقم هاتفك" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">وقت الاستلام المتوقع *</label>
-                    <input type="time" class="form-input" id="pickup-time" required>
+                    <input type="time" class="form-input" id="takeaway-time" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">ملاحظات (اختياري)</label>
-                    <textarea class="form-textarea" id="pickup-notes" placeholder="أي ملاحظات إضافية حول الطلب"></textarea>
+                    <textarea class="form-textarea" id="takeaway-notes" placeholder="أي ملاحظات إضافية حول الطلب"></textarea>
                 </div>
                 <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
             </div>
@@ -872,9 +872,9 @@
                 <div class="table-number" id="delivery-address">العنوان</div>
             </div>
             
-            <div id="pickup-info" class="table-info hidden">
-                <p>طلب الاستلام باسم:</p>
-                <div class="table-number" id="pickup-customer">الاسم</div>
+            <div id="takeaway-info" class="table-info hidden">
+                <p>طلب Takeaway باسم:</p>
+                <div class="table-number" id="takeaway-customer">الاسم</div>
             </div>
             
             <h2>قائمة الطعام</h2>
@@ -997,15 +997,15 @@
         const confirmationSection = document.getElementById('confirmation-section');
         const dineInOption = document.getElementById('dine-in-option');
         const deliveryOption = document.getElementById('delivery-option');
-        const pickupOption = document.getElementById('pickup-option');
+        const takeawayOption = document.getElementById('takeaway-option');
         const dineInContent = document.getElementById('dine-in-content');
         const deliveryForm = document.getElementById('delivery-form');
-        const pickupForm = document.getElementById('pickup-form');
+        const takeawayForm = document.getElementById('takeaway-form');
         const tableInfo = document.getElementById('table-info');
         const deliveryInfo = document.getElementById('delivery-info');
-        const pickupInfo = document.getElementById('pickup-info');
+        const takeawayInfo = document.getElementById('takeaway-info');
         const deliveryAddress = document.getElementById('delivery-address');
-        const pickupCustomer = document.getElementById('pickup-customer');
+        const takeawayCustomer = document.getElementById('takeaway-customer');
         const productsContainer = document.getElementById('products-container');
         const categoriesContainer = document.getElementById('categories-container');
         const cartCount = document.getElementById('cart-count');
@@ -1028,23 +1028,23 @@
             
             dineInOption.classList.remove('selected');
             deliveryOption.classList.remove('selected');
-            pickupOption.classList.remove('selected');
+            takeawayOption.classList.remove('selected');
             
             if (type === 'dine-in') {
                 dineInOption.classList.add('selected');
                 dineInContent.classList.remove('hidden');
                 deliveryForm.classList.add('hidden');
-                pickupForm.classList.add('hidden');
+                takeawayForm.classList.add('hidden');
             } else if (type === 'delivery') {
                 deliveryOption.classList.add('selected');
                 dineInContent.classList.add('hidden');
                 deliveryForm.classList.remove('hidden');
-                pickupForm.classList.add('hidden');
-            } else if (type === 'pickup') {
-                pickupOption.classList.add('selected');
+                takeawayForm.classList.add('hidden');
+            } else if (type === 'takeaway') {
+                takeawayOption.classList.add('selected');
                 dineInContent.classList.add('hidden');
                 deliveryForm.classList.add('hidden');
-                pickupForm.classList.remove('hidden');
+                takeawayForm.classList.remove('hidden');
             }
         }
         
@@ -1070,16 +1070,16 @@
                 menuSection.classList.remove('hidden');
                 tableInfo.classList.add('hidden');
                 deliveryInfo.classList.remove('hidden');
-                pickupInfo.classList.add('hidden');
+                takeawayInfo.classList.add('hidden');
                 deliveryAddress.textContent = address;
                 
                 loadCategories();
                 loadMenu();
-            } else if (orderType === 'pickup') {
-                const name = document.getElementById('pickup-name').value;
-                const phone = document.getElementById('pickup-phone').value;
-                const time = document.getElementById('pickup-time').value;
-                const notes = document.getElementById('pickup-notes').value;
+            } else if (orderType === 'takeaway') {
+                const name = document.getElementById('takeaway-name').value;
+                const phone = document.getElementById('takeaway-phone').value;
+                const time = document.getElementById('takeaway-time').value;
+                const notes = document.getElementById('takeaway-notes').value;
                 
                 if (!name || !phone || !time) {
                     alert('يرجى ملء جميع حقول معلومات الاستلام الإلزامية');
@@ -1092,8 +1092,8 @@
                 menuSection.classList.remove('hidden');
                 tableInfo.classList.add('hidden');
                 deliveryInfo.classList.add('hidden');
-                pickupInfo.classList.remove('hidden');
-                pickupCustomer.textContent = name;
+                takeawayInfo.classList.remove('hidden');
+                takeawayCustomer.textContent = name;
                 
                 loadCategories();
                 loadMenu();
@@ -1234,7 +1234,7 @@
                 menuSection.classList.remove('hidden');
                 tableInfo.classList.remove('hidden');
                 deliveryInfo.classList.add('hidden');
-                pickupInfo.classList.add('hidden');
+                takeawayInfo.classList.add('hidden');
                 
                 await loadCategories();
                 await loadMenu();
@@ -1574,8 +1574,8 @@
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
                     orderData.notes = customerInfo.address;
-                } else if (orderType === 'pickup') {
-                    orderData.order_type = 'pickup';
+                } else if (orderType === 'takeaway') {
+                    orderData.order_type = 'pickup'; // نبقى على القيمة الأصلية pickup في قاعدة البيانات
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
                     orderData.notes = `وقت الاستلام: ${customerInfo.time}. ${customerInfo.notes || ''}`;
