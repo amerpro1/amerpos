@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مطعمنا </title>
+    <title>مطعمنا</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -271,6 +271,17 @@
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.2);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .qr-scanner {
@@ -653,16 +664,20 @@
             <div id="delivery-form" class="delivery-form hidden">
                 <h2>معلومات التوصيل</h2>
                 <div class="form-group">
-                    <label class="form-label">الاسم الكامل</label>
-                    <input type="text" class="form-input" id="customer-name" placeholder="أدخل اسمك الكامل">
+                    <label class="form-label">الاسم الكامل *</label>
+                    <input type="text" class="form-input" id="customer-name" placeholder="أدخل اسمك الكامل" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">رقم الهاتف</label>
-                    <input type="tel" class="form-input" id="customer-phone" placeholder="أدخل رقم هاتفك">
+                    <label class="form-label">رقم الهاتف *</label>
+                    <input type="tel" class="form-input" id="customer-phone" placeholder="أدخل رقم هاتفك" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">العنوان</label>
-                    <input type="text" class="form-input" id="customer-address" placeholder="أدخل عنوانك بالتفصيل">
+                    <label class="form-label">العنوان *</label>
+                    <input type="text" class="form-input" id="customer-address" placeholder="أدخل عنوانك بالتفصيل" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ملاحظات (اختياري)</label>
+                    <textarea class="form-textarea" id="customer-notes" placeholder="أي ملاحظات إضافية حول الطلب أو العنوان"></textarea>
                 </div>
                 <button class="btn btn-large" onclick="proceedToMenu()">متابعة إلى القائمة</button>
             </div>
@@ -689,7 +704,7 @@
             
             <div id="delivery-info" class="table-info hidden">
                 <p>طلب التوصيل إلى:</p>
-                <div class="table-number" id="delivery-address">العنصر</div>
+                <div class="table-number" id="delivery-address">العنوان</div>
             </div>
             
             <h2>قائمة الطعام</h2>
@@ -747,7 +762,7 @@
         
         // حالة التطبيق
         let currentTable = null;
-        let orderType = null; // 'dine-in' أو 'delivery'
+        let orderType = null;
         let customerInfo = null;
         let cart = [];
         let products = [];
@@ -775,21 +790,13 @@
         const loadingElement = document.getElementById('loading');
         const connectionStatusElement = document.getElementById('connection-status');
         
-        // دالة لمعالجة معاملات URL
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-        
-        // اختيار نوع الطلب (توصيل أو تناول في المطعم)
+        // اختيار نوع الطلب
         function selectOption(type) {
             orderType = type;
             
-            // إزالة التحديد من جميع الخيارات
             dineInOption.classList.remove('selected');
             deliveryOption.classList.remove('selected');
             
-            // إظهار العناصر المناسبة حسب النوع
             if (type === 'dine-in') {
                 dineInOption.classList.add('selected');
                 dineInContent.classList.remove('hidden');
@@ -804,33 +811,27 @@
         // المتابعة إلى القائمة
         function proceedToMenu() {
             if (orderType === 'dine-in') {
-                // إذا كان تناول في المطعم، ننتقل إلى مسح QR code
                 welcomeSection.classList.add('hidden');
                 qrSection.classList.remove('hidden');
             } else if (orderType === 'delivery') {
-                // إذا كان توصيل، نتحقق من البيانات المدخلة
                 const name = document.getElementById('customer-name').value;
                 const phone = document.getElementById('customer-phone').value;
                 const address = document.getElementById('customer-address').value;
+                const notes = document.getElementById('customer-notes').value;
                 
                 if (!name || !phone || !address) {
-                    alert('يرجى ملء جميع حقول معلومات التوصيل');
+                    alert('يرجى ملء جميع حقول معلومات التوصيل الإلزامية');
                     return;
                 }
                 
-                // حفظ معلومات العميل
-                customerInfo = { name, phone, address };
+                customerInfo = { name, phone, address, notes };
                 
-                // إخفاء قسم الترحيب وإظهار قسم القائمة
                 welcomeSection.classList.add('hidden');
                 menuSection.classList.remove('hidden');
-                
-                // إظهار معلومات التوصيل وإخفاء معلومات الطاولة
                 tableInfo.classList.add('hidden');
                 deliveryInfo.classList.remove('hidden');
                 deliveryAddress.textContent = address;
                 
-                // تحميل القائمة
                 loadCategories();
                 loadMenu();
             }
@@ -840,18 +841,20 @@
         function checkUrlForTableNumber() {
             const tableNumber = getQueryParam('table');
             if (tableNumber) {
-                // إذا كان هناك معامل table في الرابط، نتخطى واجهة الترحيب
                 welcomeSection.classList.add('hidden');
                 qrSection.classList.remove('hidden');
-                // تعيين الطاولة مباشرة
                 setTable(tableNumber);
             }
+        }
+        
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
         
         // اختبار الاتصال بقاعدة البيانات
         async function testConnection() {
             try {
-                // اختبار جلب التصنيفات
                 const { data: categories, error: catError } = await supabase
                     .from('categories')
                     .select('*')
@@ -862,10 +865,8 @@
                     console.error('Error connecting to categories:', catError);
                 } else {
                     showConnectionStatus('تم الاتصال بنجاح بقاعدة البيانات', true);
-                    console.log('Successfully connected to Supabase. Categories:', categories);
                 }
                 
-                // اختبار جلب عناصر القائمة
                 const { data: menuItems, error: menuError } = await supabase
                     .from('menu_items')
                     .select('*')
@@ -873,15 +874,12 @@
                     
                 if (menuError) {
                     console.error('Error connecting to menu_items:', menuError);
-                } else {
-                    console.log('Menu items:', menuItems);
                 }
                 
             } catch (error) {
                 console.error('Connection test failed:', error);
                 showConnectionStatus('فشل اختبار الاتصال بقاعدة البيانات', false);
             } finally {
-                // إخفاء شاشة التحميل بعد 2 ثانية
                 setTimeout(() => {
                     loadingElement.style.display = 'none';
                 }, 2000);
@@ -892,7 +890,6 @@
             connectionStatusElement.textContent = message;
             connectionStatusElement.className = isSuccess ? 'connection-status connection-success' : 'connection-status connection-error';
             
-            // إخفاء الرسالة بعد 5 ثوان
             setTimeout(() => {
                 connectionStatusElement.textContent = '';
                 connectionStatusElement.className = '';
@@ -912,7 +909,7 @@
                             qrbox: { width: 250, height: 250 }
                         },
                         onQRCodeScanned,
-                        () => {} // verbose
+                        () => {}
                     ).catch(err => {
                         console.error("Failed to start QR scanner", err);
                     });
@@ -924,8 +921,6 @@
         }
         
         function onQRCodeScanned(decodedText, decodedResult) {
-            console.log(`QR code scanned: ${decodedText}`);
-            // افترض أن QR code يحتوي على ID الطاولة مباشرة
             const tableId = decodedText;
             if (tableId) {
                 setTable(tableId);
@@ -944,7 +939,6 @@
         
         async function setTable(tableId) {
             try {
-                // التحقق من وجود الطاولة في قاعدة البيانات
                 const { data: table, error: tableError } = await supabase
                     .from('tables')
                     .select('*')
@@ -960,7 +954,6 @@
                     return;
                 }
                 
-                // تحديث حالة الطاولة إلى مشغولة
                 const { error: updateError } = await supabase
                     .from('tables')
                     .update({ 
@@ -974,15 +967,11 @@
                 currentTable = tableId;
                 currentTableElement.textContent = `طاولة ${tableId}`;
                 
-                // إخفاء قسم QR وإظهار قسم القائمة
                 qrSection.classList.add('hidden');
                 menuSection.classList.remove('hidden');
-                
-                // إظهار معلومات الطاولة وإخفاء معلومات التوصيل
                 tableInfo.classList.remove('hidden');
                 deliveryInfo.classList.add('hidden');
                 
-                // تحميل القائمة والتصنيفات
                 await loadCategories();
                 await loadMenu();
             } catch (error) {
@@ -993,7 +982,6 @@
         
         async function loadCategories() {
             try {
-                // جلب التصنيفات من Supabase
                 const { data, error } = await supabase
                     .from('categories')
                     .select('*')
@@ -1005,7 +993,6 @@
                 renderCategories();
             } catch (error) {
                 console.error('Error loading categories:', error);
-                // في حالة الخطأ، نعرض تصنيفات افتراضية
                 categories = [
                     { id: 1, name: 'الوجبات الرئيسية' },
                     { id: 2, name: 'المقبلات' },
@@ -1019,14 +1006,12 @@
         function renderCategories() {
             categoriesContainer.innerHTML = '';
             
-            // زر لعرض جميع المنتجات
             const allButton = document.createElement('button');
             allButton.className = 'category-btn active';
             allButton.textContent = 'الكل';
             allButton.onclick = () => filterProducts('all');
             categoriesContainer.appendChild(allButton);
             
-            // أزرار التصنيفات
             categories.forEach(category => {
                 const button = document.createElement('button');
                 button.className = 'category-btn';
@@ -1038,7 +1023,6 @@
         
         async function loadMenu() {
             try {
-                // جلب البيانات من Supabase
                 const { data, error } = await supabase
                     .from('menu_items')
                     .select('*')
@@ -1052,7 +1036,6 @@
                 console.error('Error loading menu:', error);
                 alert('حدث خطأ في تحميل القائمة. يرجى المحاولة مرة أخرى.');
                 
-                // بيانات افتراضية للاختبار
                 products = [
                     { id: 1, name: 'برجر لحم', descrip_item: 'برجر لحم مع الجبن والخضار', price: 25, category_id: 1, image_url: '' },
                     { id: 2, name: 'برجر دجاج', descrip_item: 'برجر دجاج مع الخضار', price: 20, category_id: 1, image_url: '' },
@@ -1102,13 +1085,11 @@
         }
         
         function filterProducts(categoryId) {
-            // تحديث أزرار التصنيف النشطة
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
             
-            // عرض المنتجات حسب التصنيف
             renderProducts(categoryId);
         }
         
@@ -1147,22 +1128,15 @@
                 });
             }
             
-            // إعادة تعيين العداد
             quantityElement.textContent = '0';
-            
-            // تحديث سلة التسوق
             updateCart();
-            
-            // إظهار تأكيد سريع
             alert(`تم إضافة ${quantity} من ${product.name} إلى السلة`);
         }
         
         function updateCart() {
-            // تحديث عدد العناصر
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
             cartCount.textContent = totalItems;
             
-            // تحديث قائمة العناصر في السلة
             cartItems.innerHTML = '';
             let total = 0;
             
@@ -1185,7 +1159,6 @@
                 cartItems.appendChild(cartItem);
             });
             
-            // تحديث المجموع الكلي
             cartTotal.textContent = total.toFixed(2);
         }
         
@@ -1205,29 +1178,26 @@
             }
             
             try {
-                // حساب المبلغ الإجمالي
                 const totalAmount = cart.reduce((total, item) => {
                     return total + (item.product.price * item.quantity);
                 }, 0);
                 
-                // تحضير عناصر الطلب بتنسيق JSON
                 const orderItems = cart.map(item => ({
-                    id: item.product.id,
+                    menu_item_id: item.product.id,
                     name: item.product.name,
                     price: item.product.price,
                     quantity: item.quantity,
                     total: item.product.price * item.quantity
                 }));
                 
-                // تحديد نوع الطلب وحالته
                 let orderData = {
-                    total: totalAmount,
+                    total_amount: totalAmount,
                     items: orderItems,
                     status: 'pending',
-                    payment_status: 'unpaid'
+                    payment_status: 'unpaid',
+                    created_at: new Date().toISOString()
                 };
                 
-                // إضافة البيانات حسب نوع الطلب
                 if (orderType === 'dine-in') {
                     orderData.order_type = 'dine_in';
                     orderData.table_number = currentTable;
@@ -1236,31 +1206,32 @@
                     orderData.customer_name = customerInfo.name;
                     orderData.customer_phone = customerInfo.phone;
                     orderData.delivery_address = customerInfo.address;
+                    orderData.notes = customerInfo.notes || '';
                 }
                 
-                // إدخال الطلب في قاعدة البيانات
                 const { data: order, error: orderError } = await supabase
                     .from('orders')
                     .insert([orderData])
                     .select();
                 
-                if (orderError) throw orderError;
+                if (orderError) {
+                    console.error('Supabase error details:', orderError);
+                    throw orderError;
+                }
                 
                 const orderId = order[0].id;
                 
-                // إظهار تأكيد الطلب
                 document.getElementById('order-number').textContent = `ORD-${orderId}`;
                 menuSection.classList.add('hidden');
                 confirmationSection.classList.remove('hidden');
                 cartPanel.classList.remove('show');
                 
-                // تفريغ السلة
                 cart = [];
                 updateCart();
                 
             } catch (error) {
                 console.error('Error placing order:', error);
-                alert('حدث خطأ في تقديم الطلب. يرجى المحاولة مرة أخرى.');
+                alert('حدث خطأ في تقديم الطلب. يرجى المحاولة مرة أخرى. التفاصيل: ' + error.message);
             }
         }
         
@@ -1270,7 +1241,8 @@
             currentTable = null;
             orderType = null;
             customerInfo = null;
-            // إعادة تحميل الصفحة بدون معاملات URL
+            cart = [];
+            updateCart();
             window.location.href = window.location.origin + window.location.pathname;
         }
         
@@ -1278,7 +1250,6 @@
         window.onload = function() {
             testConnection();
             startQRScanner();
-            // التحقق من وجود معامل table في URL
             checkUrlForTableNumber();
         };
     </script>
